@@ -47,6 +47,7 @@ int rm_jFile_or_not=0;
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
+int lookup_symbol_type(const Header *header, const char *id);
 Header* create_symbol();
 void insert_symbol(Header *header, Value *t_ptr, Value *id_ptr,char *kind);
 void insert_symbol_forfun(Header *header, Value *t_ptr, Value *id_ptr,char *kind);
@@ -109,6 +110,17 @@ primary_expression
 			symbol_exist_or_not = lookup_symbol(tmp,$$.id_name);
 			if(symbol_exist_or_not!=-10)
 			{
+				if(tmp->depth==0)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+						sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+					else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+						sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+					strcat(fun_content,b);
+				}
 				break;
 			}
 		}
@@ -118,9 +130,27 @@ primary_expression
         	sprintf(errmsg, "Undeclared variable %s", $$.id_name);
 		} 
 	  }
-	| I_CONST {$$=yylval.val;}
-    | F_CONST {$$=yylval.val;}
-	| '"' STRING '"' {$$=yylval.val;}
+	| I_CONST 
+		{
+			$$=yylval.val;
+			char b[100];
+			sprintf(b,"\tldc %d\n",$$.i_val);
+			strcat(fun_content,b);
+		}
+    | F_CONST 
+		{
+			$$=yylval.val;
+			char b[100];
+			sprintf(b,"\tldc %f\n",$$.f_val);
+			strcat(fun_content,b);
+		}
+	| '"' STRING '"' 
+		{
+			$$=yylval.val;
+			char b[100];
+			sprintf(b,"\tldc \"%s\"\n",$$.string);
+			strcat(fun_content,b);
+		}
 	| '('expression ')'
 	;
 
@@ -149,7 +179,6 @@ postfix_expression
 		}
 		if(lookup_symbol(tmp,$$.id_name)==-10)
 		{
-			//printf("8888888888\n");
 			err=1;
         	sprintf(errmsg, "Undeclared function %s", $$.id_name);
 		}
@@ -165,7 +194,6 @@ postfix_expression
 		}
 		if(lookup_symbol(tmp,$$.id_name)==-10)
 		{
-			//printf("8888888888\n");
 			err=1;
         	sprintf(errmsg, "Undeclared function %s", $$.id_name);
 		} 
@@ -211,6 +239,9 @@ multiplicative_expression
 additive_expression
 	: multiplicative_expression {$$=$1;}
 	| additive_expression '+' multiplicative_expression
+		{
+			strcat(fun_content,"\tiadd\n");
+		}
 	| additive_expression '-' multiplicative_expression
 	;
 
@@ -363,7 +394,7 @@ declaration
 				if(v1->type==I_T)
 					fprintf(java_assembly_code,".field public static %s I = %d\n",v2->id_name,v4->i_val);
 				else if(v1->type==F_T)
-					fprintf(java_assembly_code,".field public static %s F = %d\n\n",v2->id_name,v4->f_val);
+					fprintf(java_assembly_code,".field public static %s F = %f\n\n",v2->id_name,v4->f_val);
 				else if(v1->type==B_T)
 					fprintf(java_assembly_code,".field public static %s Z = %d\n",v2->id_name,v4->i_val);
 			}
@@ -403,11 +434,11 @@ init_declarator
 	;
 
 type_specifier
-	: VOID { $$ = yylval.val;/*printf("222");*/ }
-	| INT { $$ = yylval.val;/*printf("222");*/ }
-	| FLOAT { $$ = yylval.val;/*printf("222");*/ }
-	| BOOL  { $$ = yylval.val;/*printf("222");*/}
-	| STR_TYPE { $$ = yylval.val;/*printf("222");*/ }
+	: VOID { $$ = yylval.val; }
+	| INT { $$ = yylval.val; }
+	| FLOAT { $$ = yylval.val; }
+	| BOOL  { $$ = yylval.val; }
+	| STR_TYPE { $$ = yylval.val; }
 	;
 
 specifier_qualifier_list
@@ -576,6 +607,7 @@ function_definition
 				
 				fprintf(java_assembly_code,"%s",fun_content);
 				strcpy(fun_content,"");
+				fprintf(java_assembly_code,".end method\n");
 			}
 				
 		}
@@ -835,19 +867,14 @@ void insert_symbol_forfun(Header *header, Value *t_ptr, Value *id_ptr,char *kind
 		//要去檢查前一個table的最後一個entry是不是有Attribute存在,如果有,則直接使用該entry,若無,則須創新的entry
 		if(cur_header->pre!=NULL&&cur_header->pre->table_root!=NULL) 
 		{
-			//printf("7777777\n");
 			Entry *tr=cur_header->pre->table_root;
-			//printf("17171717\n");
 			while(tr->next!=NULL)
 			{
-				//printf("767676\n");
 				tr=tr->next;
 			}
 			
 			if(strcmp(tr->Attribute,"")!=0&&tr->index==-8) //有Attribute存在
 			{
-				
-				//printf("88888888\n");
 				tr->index=tmp->index;
 				tr->id_ptr=tmp->id_ptr;
 				strcpy(tr->Kind,tmp->Kind);
@@ -856,7 +883,6 @@ void insert_symbol_forfun(Header *header, Value *t_ptr, Value *id_ptr,char *kind
 			}
 			else //無Attribute存在
 			{
-				//printf("999999\n");
 				Entry *e=header->table_root;
 				if(e==NULL)
 				{
@@ -906,7 +932,6 @@ int lookup_symbol(const Header *header, const char *id)
 {
 	if (header->table_root == NULL) 
 	{
-		//printf("NULLLLLLLL\n");
         return -10;
     }
     Entry *cur = header->table_root;
@@ -927,6 +952,34 @@ int lookup_symbol(const Header *header, const char *id)
     }
     return -10;
 }
+
+int lookup_symbol_type(const Header *header, const char *id) 
+{
+	//return 0 for int
+	//return 1 for float
+	//return 2 for bool
+	if (header->table_root == NULL) 
+	{
+        return -10;
+    }
+    Entry *cur = header->table_root;
+    while (cur != NULL)
+	{
+        if (cur->id_ptr!=NULL&&strcmp(cur->id_ptr->id_name, id) == 0)
+		{
+            //return cur->index;
+			if(strcmp(cur->type,"int")==0)
+				return 0;
+			else if(strcmp(cur->type,"float")==0)
+				return 1;
+			else if(strcmp(cur->type,"bool")==0)
+				return 2;
+        }
+        cur = cur->next;
+    }
+    return -10;
+}
+
 void dump_symbol(Header *header) 
 {
     printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n",
@@ -1001,10 +1054,6 @@ void dump_scope()
 	if(tmp->table_root!=NULL)
 	{
 		dump_symbol(tmp);
-	}
-    else
-	{
-		//printf("EEEEEEEEE\n");
 	}
     free(tmp);
     tmp = NULL;
