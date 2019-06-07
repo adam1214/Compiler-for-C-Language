@@ -5,3 +5,5 @@
 .method public static main([Ljava/lang/String;)V
 .limit stack 50
 .limit locals 50
+	ldc 0
+	istore 0

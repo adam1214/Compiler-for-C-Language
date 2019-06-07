@@ -41,6 +41,8 @@ char errmsg[64];
 int syntax_err=0;
 int yacc_handle_syntax=1;
 FILE *java_assembly_code;
+int reg=0;
+char fun_content[1000000]="";
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -322,7 +324,7 @@ declaration
 	  	{
 			Value *v1=&$1; //int
 		  	Value *v2=&$2; //a
-			if(cur_header->depth==0)
+			if(cur_header->depth==0) //global var
 			{
 				if(v1->type==I_T)
 					fprintf(java_assembly_code,".field public static %s I\n",v2->id_name);
@@ -331,6 +333,23 @@ declaration
 				else if(v1->type==B_T)
 					fprintf(java_assembly_code,".field public static %s Z\n",v2->id_name);
 			}
+			else //local var
+			{
+				if(v1->type==I_T)
+				{
+					char b[100];
+					sprintf(b,"\tldc 0\n\tistore %d\n",reg);
+					strcat(fun_content,b);
+				}
+				else if(v1->type==F_T)
+				{
+					char b[100];
+					sprintf(b,"\tfload 0.0\n\tfstore %d\n",reg);
+					strcat(fun_content,b);
+				}
+				reg++;
+			}
+
 		 	insert_symbol(cur_header,v1,v2,"variable");
 		}
 	| declaration_specifiers declarator '=' initializer ';'
@@ -338,7 +357,7 @@ declaration
 			Value *v1=&$1; //int 
 			Value *v2=&$2; //a
 			Value *v4=&$4; //3
-			if(cur_header->depth==0)
+			if(cur_header->depth==0) //global var
 			{
 				if(v1->type==I_T)
 					fprintf(java_assembly_code,".field public static %s I = %d\n",v2->id_name,v4->i_val);
@@ -346,6 +365,22 @@ declaration
 					fprintf(java_assembly_code,".field public static %s F = %d\n\n",v2->id_name,v4->f_val);
 				else if(v1->type==B_T)
 					fprintf(java_assembly_code,".field public static %s Z = %d\n",v2->id_name,v4->i_val);
+			}
+			else //local var
+			{
+				if(v1->type==I_T)
+				{
+					char b[100];
+					sprintf(b,"\tldc %d\n\tistore %d\n",v4->i_val,reg);
+					strcat(fun_content,b);
+				}
+				else if(v1->type==F_T)
+				{
+					char b[100];
+					sprintf(b,"\tfload %f\n\tfstore %d\n",v4->f_val,reg);
+					strcat(fun_content,b);
+				}
+				reg++;
 			}
 			insert_symbol(cur_header,v1,v2,"variable");
 		}
@@ -537,6 +572,9 @@ function_definition
 					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)Z\n.limit stack 50\n.limit locals 50\n");
 				else if(v1->type==V_T)
 					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)V\n.limit stack 50\n.limit locals 50\n");
+				
+				fprintf(java_assembly_code,"%s",fun_content);
+				strcpy(fun_content,"");
 			}
 				
 		}
