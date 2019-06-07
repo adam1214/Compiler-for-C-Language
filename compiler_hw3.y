@@ -43,6 +43,7 @@ int yacc_handle_syntax=1;
 FILE *java_assembly_code;
 int reg=0;
 char fun_content[1000000]="";
+int rm_jFile_or_not=0;
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -608,6 +609,12 @@ int main(int argc, char** argv)
 
 	dump_all_scopes();
 	printf("\nTotal lines: %d \n",yylineno);
+
+	if(rm_jFile_or_not==1)
+	{
+		remove("java_assembly_code.j");
+	}
+
     return 0;
 }
 
@@ -617,6 +624,7 @@ void yyerror_overloading(char *s,int line) //semantic
     printf("| Error found in line %d: %s\n", line, buf);
     printf("| %s", s);
     printf("\n|-----------------------------------------------|\n\n");
+	rm_jFile_or_not=1;
 }
 
 void yyerror(char *s) //sytax
@@ -629,6 +637,7 @@ void yyerror(char *s) //sytax
     	printf("| Error found in line %d: %s\n", line, buf);
     	printf("| %s", s);
     	printf("\n|-----------------------------------------------|\n\n");
+		remove("java_assembly_code.j");
 		exit(1);
 	}
 	else

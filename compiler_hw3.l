@@ -142,6 +142,7 @@ number {digit}+
     				printf("| Error found in line %d: %s\n", yylineno, buf);
     				printf("| syntax error");
     				printf("\n|-----------------------------------------------|\n\n");
+					remove("java_assembly_code.j");
 					exit(1);
 				}
 				strcpy(buf,""); 

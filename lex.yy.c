@@ -1227,6 +1227,7 @@ YY_RULE_SETUP
     				printf("| Error found in line %d: %s\n", yylineno, buf);
     				printf("| syntax error");
     				printf("\n|-----------------------------------------------|\n\n");
+					remove("java_assembly_code.j");
 					exit(1);
 				}
 				strcpy(buf,""); 
@@ -1237,20 +1238,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 152 "compiler_hw3.l"
+#line 153 "compiler_hw3.l"
 {/*printf("%s", yytext);*/ CONCAT;}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 153 "compiler_hw3.l"
+#line 154 "compiler_hw3.l"
 { /* ignore bad characters */ }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 157 "compiler_hw3.l"
+#line 158 "compiler_hw3.l"
 ECHO;
 	YY_BREAK
-#line 1254 "lex.yy.c"
+#line 1255 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(STRING_STATE):
@@ -2265,7 +2266,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 157 "compiler_hw3.l"
+#line 158 "compiler_hw3.l"
 
 
 
