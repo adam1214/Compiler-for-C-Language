@@ -40,6 +40,7 @@ int err=0;
 char errmsg[64];
 int syntax_err=0;
 int yacc_handle_syntax=1;
+FILE *java_assembly_code;
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -512,6 +513,8 @@ int main(int argc, char** argv)
     extern FILE *yyin;
     yyin = fopen(argv[1],"r");
 
+	java_assembly_code=fopen("java_assembly_code","w");
+
 	yylineno = 0;
 	new_scope();
     yyparse();
@@ -519,7 +522,7 @@ int main(int argc, char** argv)
 
 	dump_all_scopes();
 	printf("\nTotal lines: %d \n",yylineno);
-
+	fprintf(java_assembly_code,"123456\n");
     return 0;
 }
 
