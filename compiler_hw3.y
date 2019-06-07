@@ -318,7 +318,37 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';' 
-	| declaration_specifiers init_declarator_list ';' {Value *v1=&$1;Value *v2=&$2; insert_symbol(cur_header,v1,v2,"variable");}
+	| declaration_specifiers init_declarator_list ';' 
+	  	{
+			Value *v1=&$1; //int
+		  	Value *v2=&$2; //a
+			if(cur_header->depth==0)
+			{
+				if(v1->type==I_T)
+					fprintf(java_assembly_code,".field public static %s I\n",v2->id_name);
+				else if(v1->type==F_T)
+					fprintf(java_assembly_code,".field public static %s F\n",v2->id_name);
+				else if(v1->type==B_T)
+					fprintf(java_assembly_code,".field public static %s Z\n",v2->id_name);
+			}
+		 	insert_symbol(cur_header,v1,v2,"variable");
+		}
+	| declaration_specifiers declarator '=' initializer ';'
+		{
+			Value *v1=&$1; //int 
+			Value *v2=&$2; //a
+			Value *v4=&$4; //3
+			if(cur_header->depth==0)
+			{
+				if(v1->type==I_T)
+					fprintf(java_assembly_code,".field public static %s I = %d\n",v2->id_name,v4->i_val);
+				else if(v1->type==F_T)
+					fprintf(java_assembly_code,".field public static %s F = %d\n\n",v2->id_name,v4->f_val);
+				else if(v1->type==B_T)
+					fprintf(java_assembly_code,".field public static %s Z = %d\n",v2->id_name,v4->i_val);
+			}
+			insert_symbol(cur_header,v1,v2,"variable");
+		}
 	|
 	;
 
@@ -334,7 +364,6 @@ init_declarator_list
 
 init_declarator
 	: declarator {$$=$1;}
-	| declarator '=' initializer {$$=$1;}
 	;
 
 type_specifier
@@ -493,7 +522,24 @@ external_declaration
 
 function_definition
 	: declaration_specifiers declarator declaration_list compound_statement_fun
-	| declaration_specifiers declarator compound_statement_fun { Value *v1=&$1;Value *v2=&$2; insert_symbol_forfun(cur_header,v1,v2,"function");}
+	| declaration_specifiers declarator compound_statement_fun 
+		{ 
+			Value *v1=&$1; //void
+			Value *v2=&$2; //main
+			insert_symbol_forfun(cur_header,v1,v2,"function");
+			if(strcmp(v2->id_name,"main")==0)
+			{
+				if(v1->type==I_T)
+					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)I\n.limit stack 50\n.limit locals 50\n");
+				else if(v1->type==F_T)
+					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)F\n.limit stack 50\n.limit locals 50\n");
+				else if(v1->type==B_T)
+					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)Z\n.limit stack 50\n.limit locals 50\n");
+				else if(v1->type==V_T)
+					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)V\n.limit stack 50\n.limit locals 50\n");
+			}
+				
+		}
 	| declarator declaration_list compound_statement_fun
 	| declarator compound_statement_fun
 	;
@@ -513,7 +559,9 @@ int main(int argc, char** argv)
     extern FILE *yyin;
     yyin = fopen(argv[1],"r");
 
-	java_assembly_code=fopen("java_assembly_code","w");
+	java_assembly_code=fopen("java_assembly_code.j","w");
+	fprintf(java_assembly_code,".class public compiler_hw3\n.super java/lang/Object\n");
+
 
 	yylineno = 0;
 	new_scope();
@@ -522,7 +570,6 @@ int main(int argc, char** argv)
 
 	dump_all_scopes();
 	printf("\nTotal lines: %d \n",yylineno);
-	fprintf(java_assembly_code,"123456\n");
     return 0;
 }
 
