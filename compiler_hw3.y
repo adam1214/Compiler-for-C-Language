@@ -639,12 +639,69 @@ function_definition
 					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)Z\n.limit stack 50\n.limit locals 50\n");
 				else if(v1->type==V_T)
 					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)V\n.limit stack 50\n.limit locals 50\n");
-				
-				fprintf(java_assembly_code,"%s",fun_content);
-				strcpy(fun_content,"");
-				fprintf(java_assembly_code,".end method\n");
 			}
-				
+			else
+			{
+				char attr[51]="";
+				//lookup function attribute
+				Header *t=cur_header;
+				while(t->pre!=NULL)
+				{
+					t=t->pre;
+				}
+				//t is header root
+				Entry *cur = t->table_root;
+    			while (cur != NULL)
+				{
+        			if (cur->id_ptr!=NULL&&strcmp(cur->id_ptr->id_name, v2->id_name) == 0)
+					{
+						if(strcmp(cur->Attribute,"")!=0)
+						{
+							if(cur->Attribute[0]=='i')
+								strcat(attr,"I");
+							else if(cur->Attribute[0]=='f')
+								strcat(attr,"F");
+							else if(cur->Attribute[0]=='b')
+								strcat(attr,"Z");
+							
+							int next_will_write_or_not=0;
+							for(int i=1;cur->Attribute[i]!='\0';i++)
+							{
+								if(next_will_write_or_not==1)
+								{
+									next_will_write_or_not=0;
+									if(cur->Attribute[0]=='i')
+										strcat(attr," I");
+									else if(cur->Attribute[0]=='f')
+										strcat(attr," F");
+									else if(cur->Attribute[0]=='b')
+										strcat(attr," Z");
+								}
+								if(cur->Attribute[i]==',')
+								{
+									next_will_write_or_not=1;
+								}
+							}
+						}
+						else
+						{
+							strcpy(attr,"");
+						}
+       				}
+        			cur = cur->next;
+    			}
+				if(v1->type==I_T)
+					fprintf(java_assembly_code,".method public static %s(%s)I\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+				else if(v1->type==F_T)
+					fprintf(java_assembly_code,".method public static %s(%s)F\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+				else if(v1->type==B_T)
+					fprintf(java_assembly_code,".method public static %s(%s)Z\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+				else if(v1->type==V_T)
+					fprintf(java_assembly_code,".method public static %s(%s)V\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+			}
+			fprintf(java_assembly_code,"%s",fun_content);
+			strcpy(fun_content,"");
+			fprintf(java_assembly_code,".end method\n");	
 		}
 	| declarator declaration_list compound_statement_fun
 	| declarator compound_statement_fun
@@ -949,8 +1006,7 @@ void insert_symbol_forfun(Header *header, Value *t_ptr, Value *id_ptr,char *kind
 				}
 				e->next=tmp;
 			}
-		}
-		
+		}	
     } 
 	else 
 	{

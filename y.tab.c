@@ -567,8 +567,8 @@ static const yytype_uint16 yyrline[] =
      562,   563,   564,   565,   569,   573,   573,   576,   577,   578,
      579,   582,   583,   587,   588,   592,   593,   597,   597,   600,
      601,   601,   604,   604,   605,   605,   606,   606,   610,   611,
-     612,   613,   617,   618,   622,   623,   627,   627,   649,   650,
-     654,   655,   656,   657
+     612,   613,   617,   618,   622,   623,   627,   627,   706,   707,
+     711,   712,   713,   714
 };
 #endif
 
@@ -2259,42 +2259,99 @@ yyreduce:
 					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)Z\n.limit stack 50\n.limit locals 50\n");
 				else if(v1->type==V_T)
 					fprintf(java_assembly_code,".method public static main([Ljava/lang/String;)V\n.limit stack 50\n.limit locals 50\n");
-				
-				fprintf(java_assembly_code,"%s",fun_content);
-				strcpy(fun_content,"");
-				fprintf(java_assembly_code,".end method\n");
 			}
-				
+			else
+			{
+				char attr[51]="";
+				//lookup function attribute
+				Header *t=cur_header;
+				while(t->pre!=NULL)
+				{
+					t=t->pre;
+				}
+				//t is header root
+				Entry *cur = t->table_root;
+    			while (cur != NULL)
+				{
+        			if (cur->id_ptr!=NULL&&strcmp(cur->id_ptr->id_name, v2->id_name) == 0)
+					{
+						if(strcmp(cur->Attribute,"")!=0)
+						{
+							if(cur->Attribute[0]=='i')
+								strcat(attr,"I");
+							else if(cur->Attribute[0]=='f')
+								strcat(attr,"F");
+							else if(cur->Attribute[0]=='b')
+								strcat(attr,"Z");
+							
+							int next_will_write_or_not=0;
+							for(int i=1;cur->Attribute[i]!='\0';i++)
+							{
+								if(next_will_write_or_not==1)
+								{
+									next_will_write_or_not=0;
+									if(cur->Attribute[0]=='i')
+										strcat(attr," I");
+									else if(cur->Attribute[0]=='f')
+										strcat(attr," F");
+									else if(cur->Attribute[0]=='b')
+										strcat(attr," Z");
+								}
+								if(cur->Attribute[i]==',')
+								{
+									next_will_write_or_not=1;
+								}
+							}
+						}
+						else
+						{
+							strcpy(attr,"");
+						}
+       				}
+        			cur = cur->next;
+    			}
+				if(v1->type==I_T)
+					fprintf(java_assembly_code,".method public static %s(%s)I\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+				else if(v1->type==F_T)
+					fprintf(java_assembly_code,".method public static %s(%s)F\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+				else if(v1->type==B_T)
+					fprintf(java_assembly_code,".method public static %s(%s)Z\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+				else if(v1->type==V_T)
+					fprintf(java_assembly_code,".method public static %s(%s)V\n.limit stack 50\n.limit locals 50\n",v2->id_name,attr);
+			}
+			fprintf(java_assembly_code,"%s",fun_content);
+			strcpy(fun_content,"");
+			fprintf(java_assembly_code,".end method\n");	
 		}
-#line 2270 "y.tab.c" /* yacc.c:1646  */
+#line 2327 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 180:
-#line 654 "compiler_hw3.y" /* yacc.c:1646  */
+#line 711 "compiler_hw3.y" /* yacc.c:1646  */
     {right_compound=1;header_rec=cur_header;}
-#line 2276 "y.tab.c" /* yacc.c:1646  */
+#line 2333 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 181:
-#line 655 "compiler_hw3.y" /* yacc.c:1646  */
+#line 712 "compiler_hw3.y" /* yacc.c:1646  */
     {right_compound=1;header_rec=cur_header;}
-#line 2282 "y.tab.c" /* yacc.c:1646  */
+#line 2339 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 182:
-#line 656 "compiler_hw3.y" /* yacc.c:1646  */
+#line 713 "compiler_hw3.y" /* yacc.c:1646  */
     {right_compound=1;header_rec=cur_header;}
-#line 2288 "y.tab.c" /* yacc.c:1646  */
+#line 2345 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 183:
-#line 657 "compiler_hw3.y" /* yacc.c:1646  */
+#line 714 "compiler_hw3.y" /* yacc.c:1646  */
     {right_compound=1;header_rec=cur_header;}
-#line 2294 "y.tab.c" /* yacc.c:1646  */
+#line 2351 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2298 "y.tab.c" /* yacc.c:1646  */
+#line 2355 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2522,7 +2579,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 660 "compiler_hw3.y" /* yacc.c:1906  */
+#line 717 "compiler_hw3.y" /* yacc.c:1906  */
 
 
 /* C code section */
@@ -2815,8 +2872,7 @@ void insert_symbol_forfun(Header *header, Value *t_ptr, Value *id_ptr,char *kind
 				}
 				e->next=tmp;
 			}
-		}
-		
+		}	
     } 
 	else 
 	{
