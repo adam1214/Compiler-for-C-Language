@@ -235,7 +235,7 @@
 
   161 $@7: %empty
 
-  162 iteration_statement: WHILE '(' expression ')' $@7 statement
+  162 iteration_statement: WHILE $@7 '(' expression ')' statement
 
   163 $@8: %empty
 
@@ -1179,9 +1179,11 @@ compound_statement_fun (127)
 
 狀態 45
 
-  162 iteration_statement: WHILE . '(' expression ')' $@7 statement
+  162 iteration_statement: WHILE . $@7 '(' expression ')' statement
 
-    '('  偏移，並進入狀態 118
+    $預設  使用規則 161 以縮減 ($@7)
+
+    $@7  進入狀態 118
 
 
 狀態 46
@@ -2203,45 +2205,9 @@ compound_statement_fun (127)
 
 狀態 118
 
-  162 iteration_statement: WHILE '(' . expression ')' $@7 statement
+  162 iteration_statement: WHILE $@7 . '(' expression ')' statement
 
-    INC      偏移，並進入狀態 40
-    DEC      偏移，並進入狀態 41
-    PRINT    偏移，並進入狀態 42
-    TRUE     偏移，並進入狀態 46
-    FALSE    偏移，並進入狀態 47
-    I_CONST  偏移，並進入狀態 51
-    F_CONST  偏移，並進入狀態 52
-    ID       偏移，並進入狀態 101
-    '"'      偏移，並進入狀態 54
-    '('      偏移，並進入狀態 55
-    '&'      偏移，並進入狀態 56
-    '*'      偏移，並進入狀態 57
-    '+'      偏移，並進入狀態 58
-    '-'      偏移，並進入狀態 59
-    '~'      偏移，並進入狀態 60
-    '!'      偏移，並進入狀態 61
-
-    primary_expression         進入狀態 65
-    primary_expression_forfun  進入狀態 66
-    postfix_expression_forfun  進入狀態 67
-    postfix_expression         進入狀態 68
-    unary_expression           進入狀態 69
-    unary_operator             進入狀態 70
-    cast_expression            進入狀態 71
-    multiplicative_expression  進入狀態 72
-    additive_expression        進入狀態 73
-    shift_expression           進入狀態 74
-    relational_expression      進入狀態 75
-    equality_expression        進入狀態 76
-    and_expression             進入狀態 77
-    exclusive_or_expression    進入狀態 78
-    inclusive_or_expression    進入狀態 79
-    logical_and_expression     進入狀態 80
-    logical_or_expression      進入狀態 81
-    conditional_expression     進入狀態 82
-    assignment_expression      進入狀態 83
-    expression                 進入狀態 186
+    '('  偏移，並進入狀態 186
 
 
 狀態 119
@@ -3571,16 +3537,45 @@ compound_statement_fun (127)
 
 狀態 186
 
-   70 expression: expression . $@1 error
-   72           | expression . ',' assignment_expression
-  162 iteration_statement: WHILE '(' expression . ')' $@7 statement
+  162 iteration_statement: WHILE $@7 '(' . expression ')' statement
 
-    ')'  偏移，並進入狀態 242
-    ','  偏移，並進入狀態 160
+    INC      偏移，並進入狀態 40
+    DEC      偏移，並進入狀態 41
+    PRINT    偏移，並進入狀態 42
+    TRUE     偏移，並進入狀態 46
+    FALSE    偏移，並進入狀態 47
+    I_CONST  偏移，並進入狀態 51
+    F_CONST  偏移，並進入狀態 52
+    ID       偏移，並進入狀態 101
+    '"'      偏移，並進入狀態 54
+    '('      偏移，並進入狀態 55
+    '&'      偏移，並進入狀態 56
+    '*'      偏移，並進入狀態 57
+    '+'      偏移，並進入狀態 58
+    '-'      偏移，並進入狀態 59
+    '~'      偏移，並進入狀態 60
+    '!'      偏移，並進入狀態 61
 
-    $預設  使用規則 69 以縮減 ($@1)
-
-    $@1  進入狀態 162
+    primary_expression         進入狀態 65
+    primary_expression_forfun  進入狀態 66
+    postfix_expression_forfun  進入狀態 67
+    postfix_expression         進入狀態 68
+    unary_expression           進入狀態 69
+    unary_operator             進入狀態 70
+    cast_expression            進入狀態 71
+    multiplicative_expression  進入狀態 72
+    additive_expression        進入狀態 73
+    shift_expression           進入狀態 74
+    relational_expression      進入狀態 75
+    equality_expression        進入狀態 76
+    and_expression             進入狀態 77
+    exclusive_or_expression    進入狀態 78
+    inclusive_or_expression    進入狀態 79
+    logical_and_expression     進入狀態 80
+    logical_or_expression      進入狀態 81
+    conditional_expression     進入狀態 82
+    assignment_expression      進入狀態 83
+    expression                 進入狀態 242
 
 
 狀態 187
@@ -4388,11 +4383,16 @@ compound_statement_fun (127)
 
 狀態 242
 
-  162 iteration_statement: WHILE '(' expression ')' . $@7 statement
+   70 expression: expression . $@1 error
+   72           | expression . ',' assignment_expression
+  162 iteration_statement: WHILE $@7 '(' expression . ')' statement
 
-    $預設  使用規則 161 以縮減 ($@7)
+    ')'  偏移，並進入狀態 266
+    ','  偏移，並進入狀態 160
 
-    $@7  進入狀態 266
+    $預設  使用規則 69 以縮減 ($@1)
+
+    $@1  進入狀態 162
 
 
 狀態 243
@@ -4788,7 +4788,7 @@ compound_statement_fun (127)
 
 狀態 266
 
-  162 iteration_statement: WHILE '(' expression ')' $@7 . statement
+  162 iteration_statement: WHILE $@7 '(' expression ')' . statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -5001,7 +5001,7 @@ compound_statement_fun (127)
 
 狀態 281
 
-  162 iteration_statement: WHILE '(' expression ')' $@7 statement .
+  162 iteration_statement: WHILE $@7 '(' expression ')' statement .
 
     $預設  使用規則 162 以縮減 (iteration_statement)
 

@@ -43,6 +43,7 @@ int yacc_handle_syntax=1;
 FILE *java_assembly_code;
 char fun_content[1000000]="";
 int rm_jFile_or_not=0;
+int integer_or_not=1;
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -132,16 +133,11 @@ primary_expression
 	| I_CONST 
 		{
 			$$=yylval.val;
-			char b[100];
-			sprintf(b,"\tldc %d\n",$$.i_val);
-			strcat(fun_content,b);
 		}
     | F_CONST 
 		{
 			$$=yylval.val;
-			char b[100];
-			sprintf(b,"\tldc %f\n",$$.f_val);
-			strcat(fun_content,b);
+			integer_or_not=0;
 		}
 	| '"' STRING '"' 
 		{
@@ -199,7 +195,109 @@ postfix_expression
 	  }
 	| postfix_expression '.' ID
 	| postfix_expression INC
+		{
+			Value *v1=&$1; //a
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			strcat(fun_content,"\tldc 1\n");
+			if(integer_or_not==1)
+			{
+				char b[15]="";
+				sprintf(b,"\tiadd\n\tistore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			else if(integer_or_not==0)
+			{
+				char b[15]="";
+				sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			integer_or_not=1;
+		}
 	| postfix_expression DEC 
+		{
+			Value *v1=&$1; //a
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			strcat(fun_content,"\tldc 1\n");
+			if(integer_or_not==1)
+			{
+				char b[15]="";
+				sprintf(b,"\tisub\n\tistore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			else if(integer_or_not==0)
+			{
+				char b[15]="";
+				sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			integer_or_not=1;
+		}
 	;
 
 argument_expression_list
@@ -210,7 +308,109 @@ argument_expression_list
 unary_expression
 	: postfix_expression {$$=$1;}
 	| INC unary_expression
+		{
+			Value *v2=&$2; //a
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			strcat(fun_content,"\tldc 1\n");
+			if(integer_or_not==1)
+			{
+				char b[15]="";
+				sprintf(b,"\tiadd\n\tistore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			else if(integer_or_not==0)
+			{
+				char b[15]="";
+				sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			integer_or_not=1;
+		}
 	| DEC unary_expression
+		{
+			Value *v2=&$2; //a
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
+					{
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						integer_or_not=0;
+					}
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			strcat(fun_content,"\tldc 1\n");
+			if(integer_or_not==1)
+			{
+				char b[15]="";
+				sprintf(b,"\tisub\n\tistore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			else if(integer_or_not==0)
+			{
+				char b[15]="";
+				sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+			}
+			integer_or_not=1;
+		}
 	| unary_operator cast_expression
 	;
 
@@ -239,7 +439,21 @@ additive_expression
 	: multiplicative_expression {$$=$1;}
 	| additive_expression '+' multiplicative_expression
 		{
-			strcat(fun_content,"\tiadd\n");
+			Value *v3=&$3; //6
+			char b[100];
+			if(integer_or_not==0)
+			{
+				sprintf(b,"\tldc %f\n",v3->f_val);
+				strcat(fun_content,b);
+				strcat(fun_content,"\tfadd\n");
+			}
+			else if(integer_or_not==1)
+			{
+				sprintf(b,"\tldc %d\n",v3->i_val);
+				strcat(fun_content,b);
+				strcat(fun_content,"\tiadd\n");
+			}
+			integer_or_not=1;
 		}
 	| additive_expression '-' multiplicative_expression
 	;
@@ -251,6 +465,50 @@ shift_expression
 relational_expression
 	: shift_expression {$$=$1;}
 	| relational_expression '<' shift_expression
+		{
+			Value *v1=&$1; //a
+			Value *v3=&$3; //6
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			char b[100]="";
+			if(integer_or_not==1)
+			{
+				sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
+				strcat(fun_content,b);
+			}
+			else if(integer_or_not==0)
+			{
+				sprintf(b,"\tldc %f\n\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->f_val);
+				strcat(fun_content,b);
+			}
+			integer_or_not=1;
+		}
 	| relational_expression '>' shift_expression
 	| relational_expression LTE shift_expression
 	| relational_expression MTE shift_expression
@@ -345,7 +603,6 @@ print_arg
 		{
 			$$ = yylval.val;
 			int symbol_exist_or_not = -10; //not exist
-			$$ = yylval.val;
 			Header *tmp=cur_header;
 			symbol_exist_or_not = lookup_symbol(tmp,$$.id_name);
 			while(tmp->pre!=NULL)
@@ -366,9 +623,9 @@ print_arg
 				{
 					char b[100];
 					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						sprintf(b,"\tiload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",symbol_exist_or_not);
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						sprintf(b,"\tfload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",symbol_exist_or_not);
 					strcat(fun_content,b);
 					break;
 				}
@@ -601,7 +858,7 @@ else_or_not
 	| statement ELSE {/*new_scope();*/} statement
 
 iteration_statement
-	: WHILE '(' expression ')' {/*new_scope();*/} statement {/*int lineno=yylineno+1;printf("%d: %s\n", lineno, buf);printline_or_not=0;dump_scope();*/}
+	: WHILE {strcat(fun_content,"LABEL_BEGIN:\n");} '(' expression ')' statement {strcat(fun_content,"\tgoto LABEL_BEGIN\nLABEL_FALSE:\n\tgoto EXIT_0\nEXIT_0:\n");}
 	| FOR '(' expression_statement expression_statement ')' {/*new_scope();*/} statement {/*int lineno=yylineno+1;printf("%d: %s\n", lineno, buf);printline_or_not=0;dump_scope();*/}
 	| FOR '(' expression_statement expression_statement expression ')' {/*new_scope();*/} statement {/*int lineno=yylineno+1;printf("%d: %s\n", lineno, buf);printline_or_not=0;dump_scope();*/}
 	;
