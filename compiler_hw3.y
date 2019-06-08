@@ -41,7 +41,6 @@ char errmsg[64];
 int syntax_err=0;
 int yacc_handle_syntax=1;
 FILE *java_assembly_code;
-int reg=0;
 char fun_content[1000000]="";
 int rm_jFile_or_not=0;
 
@@ -296,6 +295,13 @@ conditional_expression
 assignment_expression
 	: conditional_expression {$$=$1;}
 	| unary_expression assignment_operator assignment_expression
+		{
+			Value *v1=&$1; //d
+			int reg_num=lookup_symbol(cur_header,v1->id_name);
+		 	char b[100];
+			sprintf(b,"\tistore %d\n", reg_num);
+			strcat(fun_content,b);
+		}
 	;
 
 assignment_operator
@@ -314,13 +320,30 @@ expression
 	| TRUE
 	| FALSE
 	| PRINT '(' print_arg ')'
-
 	;
 
 print_arg
 	: '"' STRING '"' 
+		{
+			$$ = yylval.val;
+			char b[150];
+			sprintf(b,"\tldc \"%s\"\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n",$$.string);
+		}
+	| I_CONST
+		{
+			$$ = yylval.val;
+			char b[150];
+			sprintf(b,"\tldc %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.i_val);
+		}
+	| F_CONST
+		{
+			$$ = yylval.val;
+			char b[150];
+			sprintf(b,"\tldc %f\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",$$.f_val);
+		}
 	| ID 	
 		{
+			$$ = yylval.val;
 			int symbol_exist_or_not = -10; //not exist
 			$$ = yylval.val;
 			Header *tmp=cur_header;
@@ -329,12 +352,24 @@ print_arg
 			{
 				if(symbol_exist_or_not!=-10)
 				{
+					char b[150];
+					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						sprintf(b,"\tiload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+						sprintf(b,"\tfload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",symbol_exist_or_not);
+					strcat(fun_content,b);
 					break;
 				}
 				tmp=tmp->pre;
 				symbol_exist_or_not = lookup_symbol(tmp,$$.id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					char b[100];
+					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
 					break;
 				}
 			}
@@ -356,6 +391,8 @@ declaration
 	  	{
 			Value *v1=&$1; //int
 		  	Value *v2=&$2; //a
+			insert_symbol(cur_header,v1,v2,"variable");
+
 			if(cur_header->depth==0) //global var
 			{
 				if(v1->type==I_T)
@@ -367,28 +404,28 @@ declaration
 			}
 			else //local var
 			{
+				int reg_num=lookup_symbol(cur_header,v2->id_name);
 				if(v1->type==I_T)
 				{
 					char b[100];
-					sprintf(b,"\tldc 0\n\tistore %d\n",reg);
+					sprintf(b,"\tldc 0\n\tistore %d\n",reg_num);
 					strcat(fun_content,b);
 				}
 				else if(v1->type==F_T)
 				{
 					char b[100];
-					sprintf(b,"\tfload 0.0\n\tfstore %d\n",reg);
+					sprintf(b,"\tfload 0.0\n\tfstore %d\n",reg_num);
 					strcat(fun_content,b);
 				}
-				reg++;
 			}
-
-		 	insert_symbol(cur_header,v1,v2,"variable");
 		}
 	| declaration_specifiers declarator '=' initializer ';'
 		{
 			Value *v1=&$1; //int 
 			Value *v2=&$2; //a
 			Value *v4=&$4; //3
+			insert_symbol(cur_header,v1,v2,"variable");
+
 			if(cur_header->depth==0) //global var
 			{
 				if(v1->type==I_T)
@@ -400,21 +437,20 @@ declaration
 			}
 			else //local var
 			{
+				int reg_num=lookup_symbol(cur_header,v2->id_name);
 				if(v1->type==I_T)
 				{
 					char b[100];
-					sprintf(b,"\tldc %d\n\tistore %d\n",v4->i_val,reg);
+					sprintf(b,"\tldc %d\n\tistore %d\n",v4->i_val,reg_num);
 					strcat(fun_content,b);
 				}
 				else if(v1->type==F_T)
 				{
 					char b[100];
-					sprintf(b,"\tfload %f\n\tfstore %d\n",v4->f_val,reg);
+					sprintf(b,"\tfload %f\n\tfstore %d\n",v4->f_val,reg_num);
 					strcat(fun_content,b);
 				}
-				reg++;
 			}
-			insert_symbol(cur_header,v1,v2,"variable");
 		}
 	|
 	;
@@ -573,7 +609,7 @@ iteration_statement
 jump_statement
 	: CONT ';'
 	| BREAK ';'
-	| RET ';'
+	| RET ';' {strcat(fun_content,"\treturn\n");}
 	| RET expression ';'
 	;
 
@@ -588,8 +624,7 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement_fun
-	| declaration_specifiers declarator compound_statement_fun 
+	: declaration_specifiers declarator {strcpy(fun_content,"");} compound_statement_fun 
 		{ 
 			Value *v1=&$1; //void
 			Value *v2=&$2; //main
