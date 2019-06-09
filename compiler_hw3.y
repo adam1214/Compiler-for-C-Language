@@ -25,6 +25,15 @@ struct Header { //一張表
     //Entry *table_tail;
     Header *pre;
 };
+
+struct label_node{
+	char label_name[50];
+	struct label* next;
+};
+
+struct label_node* Q_HEAD=NULL;
+struct label_node* Q_TAIL=NULL;
+
 Header *header_root = NULL;
 Header *cur_header = NULL;
 Header *header_rec = NULL;
@@ -44,6 +53,9 @@ FILE *java_assembly_code;
 char fun_content[1000000]="";
 int rm_jFile_or_not=0;
 int integer_or_not=1;
+int label_lock=0;
+char label_content[100000]="";
+char item[50]={'\0'}; //use to Pop label name
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -56,6 +68,8 @@ void new_scope();
 void dump_scope();
 void dump_all_scopes();
 void yyerror_overloading(char *s,int line);
+void Push(char d[],int len);
+char* Pop();
 
 %}
 
@@ -510,6 +524,52 @@ relational_expression
 			integer_or_not=1;
 		}
 	| relational_expression '>' shift_expression
+			{
+			Value *v1=&$1; //a
+			Value *v3=&$3; //6
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			char b[100]="";
+			if(integer_or_not==1)
+			{
+				sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
+				strcat(fun_content,b);
+				Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
+			}
+			else if(integer_or_not==0)
+			{
+				sprintf(b,"\tldc %f\n\tfsub\n\tifgt LABEL_GT\n",v3->f_val);
+				strcat(fun_content,b);
+				Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
+			}
+			integer_or_not=1;
+		}
 	| relational_expression LTE shift_expression
 	| relational_expression MTE shift_expression
 	;
@@ -517,6 +577,54 @@ relational_expression
 equality_expression
 	: relational_expression {$$=$1;}
 	| equality_expression EQ relational_expression
+		{
+			Value *v1=&$1; //a
+			Value *v3=&$3; //40
+			int symbol_exist_or_not = -10; //not exist
+			Header *tmp=cur_header;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			while(tmp->pre!=NULL)
+			{
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
+					break;
+				}
+				tmp=tmp->pre;
+				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+				if(symbol_exist_or_not!=-10)
+				{
+					char b[100];
+					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+					strcat(fun_content,b);
+					break;
+				}
+			}
+			char b[100]="";
+			if(integer_or_not==1)
+			{
+				sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
+				strcat(fun_content,b);
+				label_lock=1;
+				Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
+			}
+			else if(integer_or_not==0)
+			{
+				sprintf(b,"\tldc %f\n\tfsub\n\tifeq LABEL_EQ\n",v3->f_val);
+				strcat(fun_content,b);
+				label_lock=1;
+				Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
+			}
+			integer_or_not=1;
+		}
 	| equality_expression NE relational_expression
 	;
 
@@ -586,18 +694,28 @@ print_arg
 			$$ = yylval.val;
 			char b[150];
 			sprintf(b,"\tldc \"%s\"\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n",$$.string);
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+			}
+			else
+			{
+				strcat(fun_content,b);
+			}
 		}
 	| I_CONST
 		{
 			$$ = yylval.val;
 			char b[150];
 			sprintf(b,"\tldc %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.i_val);
+			strcat(fun_content,b);
 		}
 	| F_CONST
 		{
 			$$ = yylval.val;
 			char b[150];
 			sprintf(b,"\tldc %f\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",$$.f_val);
+			strcat(fun_content,b);
 		}
 	| ID 	
 		{
@@ -851,11 +969,20 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' {/*new_scope();*/} else_or_not
+	: IF '(' expression ')' {if(label_lock!=0) strcat(label_content,Pop());} statement else_or_not 
 
 else_or_not
-	: statement
-	| statement ELSE {/*new_scope();*/} statement
+	: ELSE statement 
+		{
+			if(strcmp(label_content,"")==0) 
+			{
+				strcat(fun_content,"\tgoto EXIT_0\nEXIT_0:\n");
+			}
+			strcat(fun_content,label_content); 
+			strcpy(label_content,"");
+			label_lock=0;
+		}
+	| 
 
 iteration_statement
 	: WHILE {strcat(fun_content,"LABEL_BEGIN:\n");} '(' expression ')' statement {strcat(fun_content,"\tgoto LABEL_BEGIN\nLABEL_FALSE:\n\tgoto EXIT_0\nEXIT_0:\n");}
@@ -1414,4 +1541,43 @@ void dump_all_scopes()
 	{
         dump_scope();
     }
+}
+
+void Push(char d[],int len)
+{
+	if(Q_HEAD==NULL)
+	{
+		Q_HEAD = (struct label_node*)malloc(sizeof(struct label_node));
+		for(int i=0;i<len;i++)
+		{
+			Q_HEAD->label_name[i]=d[i];
+		}
+		Q_HEAD->label_name[len]='\0';
+		Q_HEAD->next=NULL;
+		Q_TAIL=Q_HEAD;
+	}
+	else
+	{
+		struct label_node* ptr=(struct label_node*)malloc(sizeof(struct label_node));
+		for(int i=0;i<len;i++)
+		{
+			ptr->label_name[i]=d[i];
+		}
+		ptr->label_name[len]='\0';
+		ptr->next=NULL;
+		Q_TAIL->next=ptr;
+		Q_TAIL=ptr;
+	}
+}
+
+char* Pop()
+{
+	struct label_node* ptr=Q_HEAD;
+	for(int i=0;i<50;i++)
+	{
+		item[i]=ptr->label_name[i];
+	}
+	Q_HEAD=ptr->next;
+	free(ptr);
+	return item;
 }
