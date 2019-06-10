@@ -28,11 +28,20 @@ struct Header { //一張表
 
 struct label_node{
 	char label_name[50];
-	struct label* next;
+	struct label_node* next;
 };
 
 struct label_node* Q_HEAD=NULL;
 struct label_node* Q_TAIL=NULL;
+
+struct arg_node{
+	char arg_name[50];
+	struct arg_node* next;
+};
+
+struct arg_node* A_HEAD=NULL;
+struct arg_node* A_TAIL=NULL;
+arg_num=0;
 
 Header *header_root = NULL;
 Header *cur_header = NULL;
@@ -56,6 +65,7 @@ int integer_or_not=1;
 int label_lock=0;
 char label_content[100000]="";
 char item[50]={'\0'}; //use to Pop label name
+char item_arg[50]={'\0'}; //use to Pop arg type for calling function checking
 int arg_type=-1; // 0 for int,1 for float,2 for bool,3 for variable
 
 /* Symbol table function - you can add new function if needed. */
@@ -71,6 +81,8 @@ void dump_all_scopes();
 void yyerror_overloading(char *s,int line);
 void Push(char d[],int len);
 char* Pop();
+void Push_arg(char d[],int len);
+char* Pop_arg();
 
 %}
 
@@ -215,11 +227,25 @@ postfix_expression
 			sprintf(b,"\tinvokestatic compiler_hw3/%s()V\n",$$.id_name);
 
 		strcat(fun_content,b);
+
+		Entry *cur = t->table_root;
+    	while (cur != NULL)
+		{
+        	if (cur->id_ptr!=NULL&&strcmp(cur->id_ptr->id_name, $$.id_name) == 0)
+			{
+				if(strcmp(cur->Attribute,"")!=0)
+				{
+					err=1;
+        			sprintf(errmsg, "function formal parameter is not the same");
+				}
+				break;
+       		}
+        	cur = cur->next;
+    	}
 	  }
     | postfix_expression_forfun '('argument_expression_list ')' 
 	  {
 		$$ = $1;
-		//printf("function name: %s",$$.id_name);
 		Header *tmp=cur_header;
 		while(tmp->pre!=NULL)
 		{
@@ -247,25 +273,88 @@ postfix_expression
 			{
 				if(strcmp(cur->Attribute,"")!=0)
 				{
+					char a[20];
+					if(arg_num>0)
+					{
+						strcpy(a,Pop_arg());
+					}
+					else
+					{
+						err=1;
+        				sprintf(errmsg, "function formal parameter is not the same");
+					}
+
 					if(cur->Attribute[0]=='i')
+					{
 						strcat(attr,"I");
+						if(strcmp(a,"int")!=0&&strcmp(a,"int_var")!=0)
+						{
+							err=1;
+        					sprintf(errmsg, "function formal parameter is not the same");
+						}
+					}
 					else if(cur->Attribute[0]=='f')
+					{ 
 						strcat(attr,"F");
+						if(strcmp(a,"float")!=0&&strcmp(a,"float_var")!=0)
+						{
+							err=1;
+        					sprintf(errmsg, "function formal parameter is not the same");
+						}
+					}
 					else if(cur->Attribute[0]=='b')
+					{ 
 						strcat(attr,"Z");
-							
+						if(strcmp(a,"bool")!=0&&strcmp(a,"bool_var")!=0)
+						{
+							err=1;
+        					sprintf(errmsg, "function formal parameter is not the same");
+						}
+					}		
 					int next_will_write_or_not=0;
 					for(int i=1;cur->Attribute[i]!='\0';i++)
-					{
+					{ 
 						if(next_will_write_or_not==1)
 						{
+							char aa[20];
+							if(arg_num>0)
+							{
+								strcpy(aa,Pop_arg());
+							}
+							else
+							{
+								err=1;
+        						sprintf(errmsg, "function formal parameter is not the same");
+							}
+
 							next_will_write_or_not=0;
-							if(cur->Attribute[0]=='i')
+							if(cur->Attribute[i]=='i')
+							{ 
 								strcat(attr," I");
-							else if(cur->Attribute[0]=='f')
+								if(strcmp(aa,"int")!=0&&strcmp(aa,"int_var")!=0)
+								{
+									err=1;
+        							sprintf(errmsg, "function formal parameter is not the same");
+								}
+							}
+							else if(cur->Attribute[i]=='f')
+							{ 
 								strcat(attr," F");
-							else if(cur->Attribute[0]=='b')
+								if(strcmp(aa,"float")!=0&&strcmp(aa,"float_var")!=0)
+								{
+									err=1;
+        							sprintf(errmsg, "function formal parameter is not the same");
+								}
+							}
+							else if(cur->Attribute[i]=='b')
+							{ 
 								strcat(attr," Z");
+								if(strcmp(aa,"bool")!=0&&strcmp(aa,"bool_var")!=0)
+								{
+									err=1;
+        							sprintf(errmsg, "function formal parameter is not the same");
+								}
+							}
 						}
 						if(cur->Attribute[i]==',')
 						{
@@ -280,6 +369,16 @@ postfix_expression
        		}
         	cur = cur->next;
     	}
+		if(arg_num>0)
+		{
+			err=1;
+        	sprintf(errmsg, "function formal parameter is not the same");
+			while(arg_num!=0)
+			{
+				Pop_arg(); //Pop out all the parameter
+			}
+		}
+
 		if(lookup_symbol_type(t,$$.id_name)==0)
 			sprintf(b,"\tinvokestatic compiler_hw3/%s(%s)I\n",$$.id_name,attr);
 		else if(lookup_symbol_type(t,$$.id_name)==1)
@@ -407,11 +506,19 @@ argument_expression_list
 			{
 				sprintf(b,"\tldc %d\n",v1->i_val);
 				strcat(fun_content,b);
+				Push_arg("int",strlen("int"));
 			}
 			else if(arg_type==1) //float
 			{
 				sprintf(b,"\tldc %f\n",v1->f_val);
 				strcat(fun_content,b);
+				Push_arg("float",strlen("float"));
+			}
+			else if(arg_type==2) //bool
+			{
+				sprintf(b,"\tldc %d\n",v1->i_val);
+				strcat(fun_content,b);
+				Push_arg("bool",strlen("bool"));
 			}
 			else if(arg_type==3) //var.
 			{
@@ -423,11 +530,21 @@ argument_expression_list
 					if(symbol_exist_or_not!=-10)
 					{
 						if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						{
 							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							Push_arg("int_var",strlen("int_var"));
+						}	
 						else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
 						{
 							sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 							integer_or_not=0;
+							Push_arg("float_var",strlen("float_var"));
+						}
+						else if(lookup_symbol_type(tmp,v1->id_name)==2) //bool
+						{
+							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							integer_or_not=0;
+							Push_arg("bool_var",strlen("bool_var"));
 						}
 						strcat(fun_content,b);
 						break;
@@ -437,11 +554,21 @@ argument_expression_list
 					if(symbol_exist_or_not!=-10)
 					{
 						if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						{
 							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							Push_arg("int_var",strlen("int_var"));
+						}							
 						else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
 						{
 							sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 							integer_or_not=0;
+							Push_arg("float_var",strlen("float_var"));
+						}
+						else if(lookup_symbol_type(tmp,v1->id_name)==2) //bool
+						{
+							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							integer_or_not=0;
+							Push_arg("bool_var",strlen("bool_var"));
 						}
 						strcat(fun_content,b);
 						break;
@@ -452,10 +579,95 @@ argument_expression_list
 			{
 				sprintf(b,"\tldc \"%s\"\n",v1->string);
 				strcat(fun_content,b);
+				Push_arg("string",strlen("string"));
 			}
 			arg_type=-1;
 		}
 	| argument_expression_list ',' assignment_expression
+		{
+			Value *v1=&$3;
+			char b[100];
+			if(arg_type==0) //int
+			{
+				sprintf(b,"\tldc %d\n",v1->i_val);
+				strcat(fun_content,b);
+				Push_arg("int",strlen("int"));
+			}
+			else if(arg_type==1) //float
+			{
+				sprintf(b,"\tldc %f\n",v1->f_val);
+				strcat(fun_content,b);
+				Push_arg("float",strlen("float"));
+			}
+			else if(arg_type==2) //bool
+			{
+				sprintf(b,"\tldc %d\n",v1->i_val);
+				strcat(fun_content,b);
+				Push_arg("bool",strlen("bool"));
+			}
+			else if(arg_type==3) //var.
+			{
+				int symbol_exist_or_not = -10; //not exist
+				Header *tmp=cur_header;
+				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+				while(tmp->pre!=NULL)
+				{
+					if(symbol_exist_or_not!=-10)
+					{
+						if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						{
+							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							Push_arg("int_var",strlen("int_var"));
+						}	
+						else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						{
+							sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+							integer_or_not=0;
+							Push_arg("float_var",strlen("float_var"));
+						}
+						else if(lookup_symbol_type(tmp,v1->id_name)==2) //bool
+						{
+							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							integer_or_not=0;
+							Push_arg("bool_var",strlen("bool_var"));
+						}
+						strcat(fun_content,b);
+						break;
+					}
+					tmp=tmp->pre;
+					symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+					if(symbol_exist_or_not!=-10)
+					{
+						if(lookup_symbol_type(tmp,v1->id_name)==0) //int
+						{
+							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							Push_arg("int_var",strlen("int_var"));
+						}							
+						else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
+						{
+							sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+							integer_or_not=0;
+							Push_arg("float_var",strlen("float_var"));
+						}
+						else if(lookup_symbol_type(tmp,v1->id_name)==2) //bool
+						{
+							sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+							integer_or_not=0;
+							Push_arg("bool_var",strlen("bool_var"));
+						}
+						strcat(fun_content,b);
+						break;
+					}
+				}
+			}
+			else if(arg_type==4) //string
+			{
+				sprintf(b,"\tldc \"%s\"\n",v1->string);
+				strcat(fun_content,b);
+				Push_arg("string",strlen("string"));
+			}
+			arg_type=-1;
+		}
 	;
 
 unary_expression
@@ -663,7 +875,7 @@ relational_expression
 			integer_or_not=1;
 		}
 	| relational_expression '>' shift_expression
-			{
+		{
 			Value *v1=&$1; //a
 			Value *v3=&$3; //6
 			int symbol_exist_or_not = -10; //not exist
@@ -1626,6 +1838,8 @@ int lookup_symbol_type(const Header *header, const char *id)
 	//return 0 for int
 	//return 1 for float
 	//return 2 for bool
+	//return 3 for void
+	//return 4 for string
 	if (header->table_root == NULL) 
 	{
         return -10;
@@ -1644,6 +1858,8 @@ int lookup_symbol_type(const Header *header, const char *id)
 				return 2;
 			else if(strcmp(cur->type,"void")==0)
 				return 3;
+			else if(strcmp(cur->type,"string")==0)
+				return 4;
         }
         cur = cur->next;
     }
@@ -1775,4 +1991,45 @@ char* Pop()
 	Q_HEAD=ptr->next;
 	free(ptr);
 	return item;
+}
+
+void Push_arg(char d[],int len)
+{
+	if(A_HEAD==NULL)
+	{
+		A_HEAD = (struct arg_node*)malloc(sizeof(struct arg_node));
+		for(int i=0;i<len;i++)
+		{
+			A_HEAD->arg_name[i]=d[i];
+		}
+		A_HEAD->arg_name[len]='\0';
+		A_HEAD->next=NULL;
+		A_TAIL=A_HEAD;
+	}
+	else
+	{
+		struct arg_node* ptr=(struct arg_node*)malloc(sizeof(struct arg_node));
+		for(int i=0;i<len;i++)
+		{
+			ptr->arg_name[i]=d[i];
+		}
+		ptr->arg_name[len]='\0';
+		ptr->next=NULL;
+		A_TAIL->next=ptr;
+		A_TAIL=ptr;
+	}
+	arg_num++;
+}
+
+char* Pop_arg()
+{
+	struct arg_node* ptr=A_HEAD;
+	for(int i=0;i<50;i++)
+	{
+		item_arg[i]=ptr->arg_name[i];
+	}
+	A_HEAD=ptr->next;
+	free(ptr);
+	arg_num--;
+	return item_arg;
 }
