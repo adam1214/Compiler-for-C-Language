@@ -1163,7 +1163,16 @@ declaration
 			if(cur_header->depth==0) //global var
 			{
 				if(v1->type==I_T)
-					fprintf(java_assembly_code,".field public static %s I = %d\n",v2->id_name,v4->i_val);
+				{
+					if(integer_or_not==1)
+						fprintf(java_assembly_code,".field public static %s I = %d\n",v2->id_name,v4->i_val);
+					else
+					{
+						int a=(int)v4->f_val;
+						fprintf(java_assembly_code,".field public static %s I = %d\n",v2->id_name,a);
+						integer_or_not=1;
+					}
+				}
 				else if(v1->type==F_T)
 					fprintf(java_assembly_code,".field public static %s F = %f\n\n",v2->id_name,v4->f_val);
 				else if(v1->type==B_T)
@@ -1175,7 +1184,14 @@ declaration
 				if(v1->type==I_T)
 				{
 					char b[100];
-					sprintf(b,"\tldc %d\n\tistore %d\n",v4->i_val,reg_num);
+					if(integer_or_not==1)
+						sprintf(b,"\tldc %d\n\tistore %d\n",v4->i_val,reg_num);
+					else
+					{
+						int a=(int)v4->f_val;
+						sprintf(b,"\tldc %d\n\tistore %d\n",a,reg_num);
+						integer_or_not=1;
+					}
 					strcat(fun_content,b);
 				}
 				else if(v1->type==F_T)
