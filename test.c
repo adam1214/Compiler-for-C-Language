@@ -1,7 +1,6 @@
+int a=2;
 void main()
 {
-	int e=2;
-	int f=4.8+e;
-	print(f);
+	print(a);
 	return;
 }

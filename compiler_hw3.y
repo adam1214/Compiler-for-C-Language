@@ -435,6 +435,18 @@ postfix_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					if(tmp->depth==0)
+					{
+						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						strcat(fun_content,b);
+						strcpy(b,"");
+						break;
+					}
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
 						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -491,6 +503,18 @@ postfix_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					if(tmp->depth==0)
+					{
+						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						strcat(fun_content,b);
+						strcpy(b,"");
+						break;
+					}
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
 						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -730,6 +754,18 @@ unary_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					if(tmp->depth==0)
+					{
+						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						strcat(fun_content,b);
+						strcpy(b,"");
+						break;
+					}
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
 						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -786,6 +822,18 @@ unary_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					if(tmp->depth==0)
+					{
+						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						strcat(fun_content,b);
+						strcpy(b,"");
+						break;
+					}
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
 						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -1175,10 +1223,21 @@ print_arg
 				symbol_exist_or_not = lookup_symbol(tmp,$$.id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					if(tmp->depth==0)
+					{
+						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+							sprintf(b,"\tgetstatic compiler_hw3/%s I\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.id_name,symbol_exist_or_not);
+						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+							sprintf(b,"\tgetstatic compiler_hw3/%s F\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",$$.id_name,symbol_exist_or_not);
+						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.id_name,symbol_exist_or_not);
+						strcat(fun_content,b);
+						strcpy(b,"");
+						break;
+					}
 					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
 					{
 						sprintf(b,"\tiload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",symbol_exist_or_not);
-						//printf("\n888888888888888888\n");
 					}
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 						sprintf(b,"\tfload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",symbol_exist_or_not);
