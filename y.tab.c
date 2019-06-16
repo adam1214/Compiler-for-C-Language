@@ -3013,9 +3013,9 @@ yyreduce:
 						
 					else
 					{
-						int a=(int)v4->f_val;
+						//int a=(int)v4->f_val;
 						//sprintf(b,"\tldc %d\n\tistore %d\n",a,reg_num);
-						sprintf(b,"\tistore %d\n",reg_num);
+						sprintf(b,"\tf2i\n\tistore %d\n",reg_num);
 						integer_or_not=1;
 					}
 					strcat(fun_content,b);
