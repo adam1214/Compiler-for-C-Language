@@ -1,10 +1,7 @@
 void main()
 {
-	int a;
-	int b=2;
-	int c=2.0;
+	float b=2.2;
+	int a=4+b;
 	print(a);
-	print(b);
-	print(c);
 	return;
 }

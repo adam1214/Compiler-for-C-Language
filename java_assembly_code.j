@@ -3,15 +3,20 @@
 .method public static main([Ljava/lang/String;)V
 .limit stack 50
 .limit locals 50
-	ldc 20
+	ldc 20.000000
+	f2i
 	istore 0
 	iload 0
-	ldc 40
-	isub
+	i2f
+	ldc 40.000000
+	fsub
+	f2i
 	ifeq LABEL_EQ
 	iload 0
-	ldc 40
-	isub
+	i2f
+	ldc 40.000000
+	fsub
+	f2i
 	ifgt LABEL_GT
 	ldc 666
 	getstatic java/lang/System/out Ljava/io/PrintStream;

@@ -68,6 +68,7 @@ char item[50]={'\0'}; //use to Pop label name
 char item_arg[50]={'\0'}; //use to Pop arg type for calling function checking
 int arg_type=-1; // 0 for int,1 for float,2 for bool,3 for variable
 char b[200]="";
+int arg_not_cast=0;
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -134,11 +135,17 @@ primary_expression
 			if(symbol_exist_or_not!=-10)
 			{
 				if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-					sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+				{
+					if(arg_not_cast==0)
+						sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
+					else
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+				}
+					
 				else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 					sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 				else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
-					sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+					sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 				break;
@@ -151,14 +158,30 @@ primary_expression
 				if(tmp->depth==0)
 				{
 					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-						sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						sprintf(b,"\tgetstatic compiler_hw3/%s I\n\ti2f\n",$$.id_name);
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 						sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
 					else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
-						sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						sprintf(b,"\tgetstatic compiler_hw3/%s Z\n\ti2f\n",$$.id_name);
 					strcat(fun_content,b);
 					strcpy(b,"");
+					break;
 				}
+
+				if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+				{
+					if(arg_not_cast==0)
+						sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
+					else
+						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+				}
+					
+				else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
+					sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+				else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
+					sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
+				strcat(fun_content,b);
+				strcpy(b,"");
 				break;
 			}
 		}
@@ -172,8 +195,11 @@ primary_expression
 		{
 			arg_type=0;
 			$$=yylval.val;
-
-			sprintf(b,"\tldc %d\n",$$.i_val);
+			float a=(float)$$.i_val;
+			if(arg_not_cast==0)
+				sprintf(b,"\tldc %f\n",a);
+			else
+				sprintf(b,"\tldc %d\n",$$.i_val);
 			strcat(fun_content,b);
 			strcpy(b,"");
 		}
@@ -209,59 +235,14 @@ primary_expression_forfun
 postfix_expression_forfun
 	: primary_expression_forfun {$$=$1;}
 
+para_arg
+	: '(' ')'
+	| '('argument_expression_list ')'
 postfix_expression
 	: primary_expression {$$=$1;}
 	| postfix_expression '[' expression ']'
-	| postfix_expression_forfun '(' ')' 
-	  {
-		$$ = $1;
-		//printf("function name: %s",$$.id_name);
-		Header *tmp=cur_header;
-		while(tmp->pre!=NULL)
-		{
-			tmp=tmp->pre;
-		}
-		if(lookup_symbol(tmp,$$.id_name)==-10)
-		{
-			err=1;
-        	sprintf(errmsg, "Undeclared function %s", $$.id_name);
-		}
-		Header *t=cur_header;
-		while(t->pre!=NULL)
-		{
-			t=t->pre;
-		}
-		//t is header root
-
-		if(lookup_symbol_type(t,$$.id_name)==0)
-			sprintf(b,"\tinvokestatic compiler_hw3/%s()I\n",$$.id_name);
-		else if(lookup_symbol_type(t,$$.id_name)==1)
-			sprintf(b,"\tinvokestatic compiler_hw3/%s()F\n",$$.id_name);
-		else if(lookup_symbol_type(t,$$.id_name)==2)
-			sprintf(b,"\tinvokestatic compiler_hw3/%s()Z\n",$$.id_name);
-		else if(lookup_symbol_type(t,$$.id_name)==3)
-			sprintf(b,"\tinvokestatic compiler_hw3/%s()V\n",$$.id_name);
-
-		strcat(fun_content,b);
-		strcpy(b,"");
-
-		Entry *cur = t->table_root;
-    	while (cur != NULL)
-		{
-        	if (cur->id_ptr!=NULL&&strcmp(cur->id_ptr->id_name, $$.id_name) == 0)
-			{
-				if(strcmp(cur->Attribute,"")!=0)
-				{
-					err=1;
-        			sprintf(errmsg, "function formal parameter is not the same");
-				}
-				break;
-       		}
-        	cur = cur->next;
-    	}
-	  }
-    | postfix_expression_forfun '('argument_expression_list ')' 
-	  {
+	| postfix_expression_forfun {arg_not_cast=1;} para_arg {arg_not_cast=0;}
+	{
 		$$ = $1;
 		Header *tmp=cur_header;
 		while(tmp->pre!=NULL)
@@ -396,7 +377,7 @@ postfix_expression
 		}
 
 		if(lookup_symbol_type(t,$$.id_name)==0)
-			sprintf(b,"\tinvokestatic compiler_hw3/%s(%s)I\n",$$.id_name,attr);
+			sprintf(b,"\tinvokestatic compiler_hw3/%s(%s)I\n\ti2f\n",$$.id_name,attr);
 		else if(lookup_symbol_type(t,$$.id_name)==1)
 			sprintf(b,"\tinvokestatic compiler_hw3/%s(%s)F\n",$$.id_name,attr);
 		else if(lookup_symbol_type(t,$$.id_name)==2)
@@ -406,7 +387,32 @@ postfix_expression
 
 		strcat(fun_content,b);
 		strcpy(b,"");
-	  }
+
+		if(strcmp(attr,"")==0)
+		{
+			//lookup function attribute
+			Header *tt=cur_header;
+			while(tt->pre!=NULL)
+			{
+				tt=tt->pre;
+			}
+			//tt is header root
+			Entry *cc = tt->table_root;
+    		while (cc != NULL)
+			{
+        		if (cc->id_ptr!=NULL&&strcmp(cc->id_ptr->id_name, $$.id_name) == 0)
+				{
+					if(strcmp(cc->Attribute,"")!=0)
+					{
+						err=1;
+        				sprintf(errmsg, "function formal parameter is not the same");
+					}
+					break;
+       			}
+        		cc = cc->next;
+    		}
+		}
+	}
 	| postfix_expression '.' ID
 	| postfix_expression INC
 		{
@@ -420,11 +426,11 @@ postfix_expression
 				{
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -438,22 +444,28 @@ postfix_expression
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
-							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
-							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						}
 						strcat(fun_content,b);
 						strcpy(b,"");
 						break;
 					}
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -461,10 +473,10 @@ postfix_expression
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1\n");
+			strcat(fun_content,"\tldc 1.000000\n");
 			if(integer_or_not==1)
 			{
-				sprintf(b,"\tiadd\n\tistore %d\n",symbol_exist_or_not);
+				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
@@ -488,11 +500,11 @@ postfix_expression
 				{
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -506,22 +518,28 @@ postfix_expression
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
-							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
-							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						}
 						strcat(fun_content,b);
 						strcpy(b,"");
 						break;
 					}
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -529,10 +547,10 @@ postfix_expression
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1\n");
+			strcat(fun_content,"\tldc 1.000000\n");
 			if(integer_or_not==1)
 			{
-				sprintf(b,"\tisub\n\tistore %d\n",symbol_exist_or_not);
+				sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
@@ -739,11 +757,11 @@ unary_expression
 				{
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -757,22 +775,28 @@ unary_expression
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
-							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
-							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						}
 						strcat(fun_content,b);
 						strcpy(b,"");
 						break;
 					}
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -780,10 +804,10 @@ unary_expression
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1\n");
+			strcat(fun_content,"\tldc 1.000000\n");
 			if(integer_or_not==1)
 			{
-				sprintf(b,"\tiadd\n\tistore %d\n",symbol_exist_or_not);
+				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
@@ -807,11 +831,11 @@ unary_expression
 				{
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -825,22 +849,28 @@ unary_expression
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
-							sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
-							sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
+						}
 						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
-							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						{
+							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
+						}
 						strcat(fun_content,b);
 						strcpy(b,"");
 						break;
 					}
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
-						sprintf(b,"\tiload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
 					}
 					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
 					{
-						sprintf(b,"\tfload %d\n",symbol_exist_or_not);
+						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
 					strcat(fun_content,b);
@@ -848,10 +878,10 @@ unary_expression
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1\n");
+			strcat(fun_content,"\tldc 1.000000\n");
 			if(integer_or_not==1)
 			{
-				sprintf(b,"\tisub\n\tistore %d\n",symbol_exist_or_not);
+				sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
@@ -904,7 +934,7 @@ additive_expression
 				//sprintf(b,"\tldc %d\n",v3->i_val);
 				strcat(fun_content,b);
 				strcpy(b,"");
-				strcat(fun_content,"\tiadd\n");
+				strcat(fun_content,"\tfadd\n");
 			}
 			integer_or_not=1;
 		}
@@ -960,7 +990,7 @@ relational_expression
 			if(integer_or_not==1)
 			{
 				//sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
-				sprintf(b,"\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
+				sprintf(b,"\tfsub\n\tf2i\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
@@ -1016,7 +1046,7 @@ relational_expression
 			if(integer_or_not==1)
 			{
 				//sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
-				sprintf(b,"\tisub\n\tifgt LABEL_GT\n");
+				sprintf(b,"\tfsub\n\tf2i\n\tifgt LABEL_GT\n");
 				strcat(fun_content,b);
 				strcpy(b,"");
 				Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
@@ -1080,7 +1110,7 @@ equality_expression
 			if(integer_or_not==1)
 			{
 				//sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
-				sprintf(b,"\tisub\n\tifeq LABEL_EQ\n");
+				sprintf(b,"\tfsub\n\tf2i\n\tifeq LABEL_EQ\n");
 				strcat(fun_content,b);
 				strcpy(b,"");
 				label_lock=1;
@@ -1137,7 +1167,7 @@ assignment_expression
 			Value *v1=&$1; //d
 			int reg_num=lookup_symbol(cur_header,v1->id_name);
 
-			sprintf(b,"\tistore %d\n", reg_num);
+			sprintf(b,"\tf2i\n\tistore %d\n", reg_num);
 			strcat(fun_content,b);
 			strcpy(b,"");
 		}
@@ -1151,7 +1181,7 @@ assignment_expression
 			if(integer_or_not==1)
 			{
 				//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
-				sprintf(b,"\tiadd\n\tistore %d\n",reg_num);
+				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",reg_num);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
@@ -1325,7 +1355,7 @@ declaration
 					if(integer_or_not==1)
 					{
 						//sprintf(b,"\tldc %d\n\tistore %d\n",v4->i_val,reg_num);
-						sprintf(b,"\tistore %d\n",reg_num);
+						sprintf(b,"\tf2i\n\tistore %d\n",reg_num);
 					}
 						
 					else
@@ -1340,7 +1370,7 @@ declaration
 				}
 				else if(v1->type==F_T)
 				{
-					sprintf(b,"\tfload %f\n\tfstore %d\n",v4->f_val,reg_num);
+					sprintf(b,"\tfstore %d\n",v4->f_val,reg_num);
 					strcat(fun_content,b);
 					strcpy(b,"");
 				}
@@ -1556,7 +1586,7 @@ jump_statement
 			}
 			if(integer_or_not==1)
 			{
-					strcat(fun_content,"\tireturn\n");
+					strcat(fun_content,"\tf2i\n\tireturn\n");
 			}
 			else if(integer_or_not==0)
 			{
