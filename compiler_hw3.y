@@ -926,11 +926,35 @@ multiplicative_expression
 		}
 	| multiplicative_expression '/' cast_expression
 		{
+			Value *v3=&$3;
+			if(v3->i_val==0)
+			{
+				err=1;
+        		sprintf(errmsg, "Variables of numbers that divided by zero.");
+			}
+			else if((int)v3->f_val==0&&v3->i_val==0)
+			{
+				err=1;
+        		sprintf(errmsg, "Variables of numbers that divided by zero.");
+			}
+			//printf("VVVVVVV=%d\n",v3->i_val);
+			//printf("VVVVVVV=%f\n",v3->f_val);
 			strcat(fun_content,"\tfdiv\n");
 		}
 	| multiplicative_expression '%' cast_expression
 		{
-			strcat(fun_content,"\tirem\n");
+			Value *v1=&$1;
+			Value *v3=&$3;
+			if((int)v1->f_val!=0||(int)v3->f_val!=0)
+			{
+				err=1;
+        		sprintf(errmsg, "Modulo operator(%) with floating point operands.");
+			}
+			//printf("VVVVVVV=%d\n",v1->i_val);
+			//printf("VVVVVVV=%f\n",v1->f_val);
+			//printf("VVVVVVV=%d\n",v3->i_val);
+			//printf("VVVVVVV=%f\n",v3->f_val);
+			strcat(fun_content,"\tfrem\n");
 		}
 	;
 
@@ -1225,6 +1249,9 @@ assignment_expression
 	| unary_expression MULASGN assignment_expression
 	| unary_expression DIVASGN assignment_expression
 	| unary_expression MODASGN assignment_expression
+		{
+
+		}
 	;
 
 expression

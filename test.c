@@ -1,8 +1,7 @@
 void main()
 {
-	bool a = TRUE;
-	bool b = FALSE;
+	float a = 100 % 3;
 	print(a);
-	print(b);
+
 	return;
 }
