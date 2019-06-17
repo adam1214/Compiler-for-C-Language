@@ -85,8 +85,8 @@ number {digit}+
 "float"		{ /*printf("%s \t FLOAT\n", yytext);printf("%s",yytext);*/CONCAT;yylval.val.type = F_T;return FLOAT;}
 "void"		{ /*printf("%s \t VOID\n", yytext);printf("%s",yytext);*/CONCAT;yylval.val.type = V_T;return VOID;}
 "bool"		{ /*printf("%s \t BOOL\n", yytext);printf("%s",yytext);*/CONCAT;yylval.val.type = B_T;return BOOL;}
-"true"		{ /*printf("%s \t TRUE\n", yytext);printf("%s",yytext);*/CONCAT;return TRUE;}
-"false"		{ /*printf("%s \t FALSE\n", yytext);printf("%s",yytext);*/CONCAT;return FALSE;}
+"TRUE"		{ /*printf("%s \t TRUE\n", yytext);printf("%s",yytext);*/CONCAT;return TRUE;}
+"FALSE"		{ /*printf("%s \t FALSE\n", yytext);printf("%s",yytext);*/CONCAT;return FALSE;}
 "return"		{ /*printf("%s \t RET\n", yytext);printf("%s",yytext);*/CONCAT;return RET;}
 "continue"		{ /*printf("%s \t CONT\n", yytext);printf("%s",yytext);*/CONCAT;return CONT;}
 "break"		{ /*printf("%s \t BREAK\n", yytext);printf("%s",yytext);*/CONCAT;return BREAK;}

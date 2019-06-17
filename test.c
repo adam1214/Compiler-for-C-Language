@@ -1,6 +1,8 @@
 void main()
 {
-	string a = "aaaa";
-	print("HELLO");
+	bool a = TRUE;
+	bool b = FALSE;
+	print(a);
+	print(b);
 	return;
 }
