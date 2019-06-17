@@ -4,8 +4,7 @@ int sqrt(int a)
 }
 void main()
 {
-	int b=5;
-	int a = sqrt(b)-5;
+	float a=2.0;
 	print(a);
 	return;
 }

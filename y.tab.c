@@ -3047,7 +3047,7 @@ yyreduce:
 				}
 				else if(v1->type==F_T)
 				{
-					sprintf(b,"\tfload 0.0\n\tfstore %d\n",reg_num);
+					sprintf(b,"\tldc 0.0\n\tfstore %d\n",reg_num);
 					strcat(fun_content,b);
 					strcpy(b,"");
 				}
