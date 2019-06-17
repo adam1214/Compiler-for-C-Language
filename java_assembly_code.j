@@ -14,9 +14,14 @@
 .method public static main([Ljava/lang/String;)V
 .limit stack 50
 .limit locals 50
-	ldc 2.000000
-	fstore 0
-	fload 0
+	ldc 5.000000
+	f2i
+	istore 0
+	iload 0
+	invokestatic compiler_hw3/sqrt(I)I
+	i2f
+	fstore 1
+	fload 1
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 	swap
 	invokevirtual java/io/PrintStream/println(F)V
