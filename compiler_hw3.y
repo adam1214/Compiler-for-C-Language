@@ -913,8 +913,17 @@ cast_expression
 multiplicative_expression
 	: cast_expression {$$=$1;}
 	| multiplicative_expression '*' cast_expression
+		{
+			strcat(fun_content,"\tfmul\n");
+		}
 	| multiplicative_expression '/' cast_expression
+		{
+			strcat(fun_content,"\tfdiv\n");
+		}
 	| multiplicative_expression '%' cast_expression
+		{
+			strcat(fun_content,"\tirem\n");
+		}
 	;
 
 additive_expression
@@ -939,6 +948,24 @@ additive_expression
 			integer_or_not=1;
 		}
 	| additive_expression '-' multiplicative_expression
+		{
+			Value *v3=&$3; //6
+			if(integer_or_not==0)
+			{
+				//sprintf(b,"\tldc %f\n",v3->f_val);
+				strcat(fun_content,b);
+				strcpy(b,"");
+				strcat(fun_content,"\tfsub\n");
+			}
+			else if(integer_or_not==1)
+			{
+				//sprintf(b,"\tldc %d\n",v3->i_val);
+				strcat(fun_content,b);
+				strcpy(b,"");
+				strcat(fun_content,"\tfsub\n");
+			}
+			integer_or_not=1;
+		}
 	;
 
 shift_expression

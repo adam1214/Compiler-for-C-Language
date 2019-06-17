@@ -1,7 +1,11 @@
+int sqrt(int a)
+{
+	return a*a;
+}
 void main()
 {
-	float b=2.2;
-	int a=4+b;
+	int b=5;
+	int a = sqrt(b)-5;
 	print(a);
 	return;
 }
