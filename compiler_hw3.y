@@ -426,12 +426,14 @@ postfix_expression
 		{
 			Value *v1=&$1; //a
 			int symbol_exist_or_not = -10; //not exist
+			int type;
 			Header *tmp=cur_header;
 			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
 			while(tmp->pre!=NULL)
 			{
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v1->id_name);
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
 						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -449,6 +451,7 @@ postfix_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v1->id_name);
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4||lookup_symbol_type(tmp,$$.id_name)==2) //int or string or bool
@@ -482,13 +485,13 @@ postfix_expression
 				}
 			}
 			strcat(fun_content,"\tldc 1.000000\n");
-			if(integer_or_not==1)
+			if(type==0) //int
 			{
 				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
-			else if(integer_or_not==0)
+			else //float
 			{
 				sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
@@ -499,6 +502,7 @@ postfix_expression
 	| postfix_expression DEC 
 		{
 			Value *v1=&$1; //a
+			int type;
 			int symbol_exist_or_not = -10; //not exist
 			Header *tmp=cur_header;
 			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
@@ -506,6 +510,7 @@ postfix_expression
 			{
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v1->id_name);
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
 					{
 						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -523,6 +528,7 @@ postfix_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v1->id_name);
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4||lookup_symbol_type(tmp,$$.id_name)==2) //int or string or bool
@@ -556,13 +562,13 @@ postfix_expression
 				}
 			}
 			strcat(fun_content,"\tldc 1.000000\n");
-			if(integer_or_not==1)
+			if(type==0) //int 
 			{
 				sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
-			else if(integer_or_not==0)
+			else //float
 			{
 				sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
@@ -757,12 +763,14 @@ unary_expression
 		{
 			Value *v2=&$2; //a
 			int symbol_exist_or_not = -10; //not exist
+			int type;
 			Header *tmp=cur_header;
 			symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
 			while(tmp->pre!=NULL)
 			{
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v2->id_name);
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
 						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -780,6 +788,7 @@ unary_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v2->id_name);
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4||lookup_symbol_type(tmp,$$.id_name)==2) //int or string or bool
@@ -813,13 +822,13 @@ unary_expression
 				}
 			}
 			strcat(fun_content,"\tldc 1.000000\n");
-			if(integer_or_not==1)
+			if(type==0) //int
 			{
 				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
-			else if(integer_or_not==0)
+			else //float
 			{
 				sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
@@ -830,6 +839,7 @@ unary_expression
 	| DEC unary_expression
 		{
 			Value *v2=&$2; //a
+			int type;
 			int symbol_exist_or_not = -10; //not exist
 			Header *tmp=cur_header;
 			symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
@@ -837,6 +847,7 @@ unary_expression
 			{
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v2->id_name);
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
 					{
 						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
@@ -854,6 +865,7 @@ unary_expression
 				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
 				if(symbol_exist_or_not!=-10)
 				{
+					type=lookup_symbol_type(tmp,v2->id_name);
 					if(tmp->depth==0)
 					{
 						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4||lookup_symbol_type(tmp,$$.id_name)==2) //int or string or bool
@@ -887,13 +899,13 @@ unary_expression
 				}
 			}
 			strcat(fun_content,"\tldc 1.000000\n");
-			if(integer_or_not==1)
+			if(type==0) //int 
 			{
 				sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
 				strcpy(b,"");
 			}
-			else if(integer_or_not==0)
+			else //float
 			{
 				sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
 				strcat(fun_content,b);
@@ -1222,36 +1234,264 @@ conditional_expression
 assignment_expression
 	: conditional_expression {$$=$1;}
 	| unary_expression '=' assignment_expression
-		{
-			Value *v1=&$1; //d
-			int reg_num=lookup_symbol(cur_header,v1->id_name);
+	{
+		// a = 6
+		Value *v1=&$1; //a
+		Value *v3=&$3; //6
 
-			sprintf(b,"\tf2i\n\tistore %d\n", reg_num);
+		int symbol_exist_or_not = -10; //not exist
+		int type;
+		Header *tmp=cur_header;
+		symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+		while(tmp->pre!=NULL)
+		{
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+			tmp=tmp->pre;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+		}
+
+		if(type==0) //int a; a=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tf2i\n\tistore %d\n",symbol_exist_or_not);
 			strcat(fun_content,b);
 			strcpy(b,"");
 		}
-	| unary_expression ADDASGN assignment_expression
+		else //float a; a=2;
 		{
-			// a += 6
-			Value *v1=&$1; //a
-			Value *v3=&$3; //6
-			int reg_num=lookup_symbol(cur_header,v1->id_name);
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfstore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+	}
+	| unary_expression ADDASGN assignment_expression
+	{
+		// a += 6
+		Value *v1=&$1; //a
+		Value *v3=&$3; //6
 
-			if(integer_or_not==1)
+		int symbol_exist_or_not = -10; //not exist
+		int type;
+		Header *tmp=cur_header;
+		symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+		while(tmp->pre!=NULL)
+		{
+			if(symbol_exist_or_not!=-10)
 			{
-				//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
-				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",reg_num);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+			tmp=tmp->pre;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
 			}
 		}
-	| unary_expression SUBASGN assignment_expression
-	| unary_expression MULASGN assignment_expression
-	| unary_expression DIVASGN assignment_expression
-	| unary_expression MODASGN assignment_expression
-		{
 
+		if(type==0) //int a; a+=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
 		}
+		else //float a; a+=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+	}
+	| unary_expression SUBASGN assignment_expression
+	{
+		// a -= 6
+		Value *v1=&$1; //a
+		Value *v3=&$3; //6
+
+		int symbol_exist_or_not = -10; //not exist
+		int type;
+		Header *tmp=cur_header;
+		symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+		while(tmp->pre!=NULL)
+		{
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+			tmp=tmp->pre;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+		}
+
+		if(type==0) //int a; a-=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+		else //float a; a-=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+	}
+	| unary_expression MULASGN assignment_expression
+	{
+		// a *= 6
+		Value *v1=&$1; //a
+		Value *v3=&$3; //6
+
+		int symbol_exist_or_not = -10; //not exist
+		int type;
+		Header *tmp=cur_header;
+		symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+		while(tmp->pre!=NULL)
+		{
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+			tmp=tmp->pre;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+		}
+
+		if(type==0) //int a; a*=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfmul\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+		else //float a; a*=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfmul\n\tfstore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+	}
+	| unary_expression DIVASGN assignment_expression
+	{
+		// a /= 6
+		Value *v1=&$1; //a
+		Value *v3=&$3; //6
+		if(v3->i_val==0)
+		{
+			err=1;
+        	sprintf(errmsg, "Variables of numbers that divided by zero.");
+		}
+		else if((int)v3->f_val==0&&v3->i_val==0)
+		{
+			err=1;
+        	sprintf(errmsg, "Variables of numbers that divided by zero.");
+		}
+
+		int symbol_exist_or_not = -10; //not exist
+		int type;
+		Header *tmp=cur_header;
+		symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+		while(tmp->pre!=NULL)
+		{
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+			tmp=tmp->pre;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+		}
+
+		if(type==0) //int a; a/=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfdiv\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+		else //float a; a/=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfdiv\n\tfstore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+	}
+	| unary_expression MODASGN assignment_expression
+	{
+		// a %= 6
+		Value *v1=&$1; //a
+		Value *v3=&$3; //6
+		if((int)v3->f_val!=0)
+		{
+			err=1;
+        	sprintf(errmsg, "Modulo operator(%) with floating point operands.");
+		}
+
+		int symbol_exist_or_not = -10; //not exist
+		int type;
+		Header *tmp=cur_header;
+		symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+		while(tmp->pre!=NULL)
+		{
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+			tmp=tmp->pre;
+			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
+			if(symbol_exist_or_not!=-10)
+			{
+				type=lookup_symbol_type(tmp,v1->id_name);
+				break;
+			}
+		}
+
+		if(type==0) //int a; a%=2;
+		{
+			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
+			sprintf(b,"\tfrem\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
+		else //float a; a%=2;
+		{
+			err=1;
+        	sprintf(errmsg, "Modulo operator(%) with floating point operands.");
+		}
+	}
 	;
 
 expression

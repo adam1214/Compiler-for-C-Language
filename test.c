@@ -1,7 +1,6 @@
-void main()
-{
-	float a = 100 % 3;
+void main(){
+	float a = 8.2;
+	++a;
 	print(a);
-
 	return;
 }
