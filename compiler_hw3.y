@@ -134,7 +134,7 @@ primary_expression
 		{
 			if(symbol_exist_or_not!=-10)
 			{
-				if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+				if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 				{
 					if(arg_not_cast==0)
 						sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
@@ -157,7 +157,7 @@ primary_expression
 			{
 				if(tmp->depth==0)
 				{
-					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+					if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 						sprintf(b,"\tgetstatic compiler_hw3/%s I\n\ti2f\n",$$.id_name);
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 						sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
@@ -168,7 +168,7 @@ primary_expression
 					break;
 				}
 
-				if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+				if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 				{
 					if(arg_not_cast==0)
 						sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
@@ -443,7 +443,7 @@ postfix_expression
 				{
 					if(tmp->depth==0)
 					{
-						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
 						}
@@ -517,7 +517,7 @@ postfix_expression
 				{
 					if(tmp->depth==0)
 					{
-						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
 						}
@@ -774,7 +774,7 @@ unary_expression
 				{
 					if(tmp->depth==0)
 					{
-						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
 						}
@@ -848,7 +848,7 @@ unary_expression
 				{
 					if(tmp->depth==0)
 					{
-						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s I\n",$$.id_name);
 						}
@@ -1268,7 +1268,7 @@ print_arg
 			{
 				if(symbol_exist_or_not!=-10)
 				{
-					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+					if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 						sprintf(b,"\tiload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",symbol_exist_or_not);
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 						sprintf(b,"\tfload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",symbol_exist_or_not);
@@ -1282,7 +1282,7 @@ print_arg
 				{
 					if(tmp->depth==0)
 					{
-						if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+						if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int or string
 							sprintf(b,"\tgetstatic compiler_hw3/%s I\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.id_name,symbol_exist_or_not);
 						else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 							sprintf(b,"\tgetstatic compiler_hw3/%s F\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",$$.id_name,symbol_exist_or_not);
@@ -1292,7 +1292,7 @@ print_arg
 						strcpy(b,"");
 						break;
 					}
-					if(lookup_symbol_type(tmp,$$.id_name)==0) //int
+					if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4) //int
 					{
 						sprintf(b,"\tiload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",symbol_exist_or_not);
 					}
@@ -1397,7 +1397,13 @@ declaration
 				}
 				else if(v1->type==F_T)
 				{
-					sprintf(b,"\tfstore %d\n",v4->f_val,reg_num);
+					sprintf(b,"\tfstore %d\n",reg_num);
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
+				else if(v1->type==S_T)
+				{
+					sprintf(b,"\tastore %d\n",reg_num);
 					strcat(fun_content,b);
 					strcpy(b,"");
 				}
