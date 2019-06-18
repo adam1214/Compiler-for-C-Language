@@ -1,6 +1,11 @@
 void main(){
-	float a = 8.2;
-	++a;
-	print(a);
+	float a = 2.3;
+	float b = 8.7;
+	if(a>=b)
+	{
+		print(111);
+	}
+
+	print(777);
 	return;
 }

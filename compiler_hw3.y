@@ -33,6 +33,7 @@ struct label_node{
 
 struct label_node* Q_HEAD=NULL;
 struct label_node* Q_TAIL=NULL;
+int label_num=0;
 
 struct arg_node{
 	char arg_name[50];
@@ -41,7 +42,7 @@ struct arg_node{
 
 struct arg_node* A_HEAD=NULL;
 struct arg_node* A_TAIL=NULL;
-arg_num=0;
+int arg_num=0;
 
 Header *header_root = NULL;
 Header *cur_header = NULL;
@@ -69,6 +70,8 @@ char item_arg[50]={'\0'}; //use to Pop arg type for calling function checking
 int arg_type=-1; // 0 for int,1 for float,2 for bool,3 for variable
 char b[200]="";
 int arg_not_cast=0;
+int while_relation=0;
+int else_tr=0;
 
 /* Symbol table function - you can add new function if needed. */
 int lookup_symbol(const Header *header, const char *id);
@@ -1022,55 +1025,47 @@ relational_expression
 		{
 			Value *v1=&$1; //a
 			Value *v3=&$3; //6
-			int symbol_exist_or_not = -10; //not exist
-			Header *tmp=cur_header;
-			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
-			while(tmp->pre!=NULL)
+			if(while_relation==1)
 			{
-				if(symbol_exist_or_not!=-10)
-				{
-					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-					}
+				//if(integer_or_not==1)
+				//{
+					//sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
+					sprintf(b,"\tfsub\n\tf2i\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
 					strcat(fun_content,b);
 					strcpy(b,"");
-					break;
-				}
-				tmp=tmp->pre;
-				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
-				if(symbol_exist_or_not!=-10)
+				//}
+				/*
+				else if(integer_or_not==0)
 				{
-					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-					}
+					//sprintf(b,"\tldc %f\n\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->f_val);
+					sprintf(b,"\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
 					strcat(fun_content,b);
 					strcpy(b,"");
-					break;
 				}
+				*/
 			}
-			if(integer_or_not==1)
+			else //if-else
 			{
-				//sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
-				sprintf(b,"\tfsub\n\tf2i\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
-				strcat(fun_content,b);
-				strcpy(b,"");
-			}
-			else if(integer_or_not==0)
-			{
-				//sprintf(b,"\tldc %f\n\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->f_val);
-				sprintf(b,"\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
-				strcat(fun_content,b);
-				strcpy(b,"");
+				//if(integer_or_not==1)
+				//{
+					//sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
+					sprintf(b,"\tfsub\n\tf2i\n\tiflt LABEL_TRUE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto LABEL_FALSE\nLABEL_TRUE:\n",strlen("\tgoto LABEL_FALSE\nLABEL_TRUE:\n"));
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					//sprintf(b,"\tldc %f\n\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->f_val);
+					sprintf(b,"\tfsub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto LABEL_FALSE\nLABEL_TRUE:\n",strlen("\tgoto LABEL_FALSE\nLABEL_TRUE:\n"));
+				}
+				*/				
 			}
 			integer_or_not=1;
 		}
@@ -1078,62 +1073,138 @@ relational_expression
 		{
 			Value *v1=&$1; //a
 			Value *v3=&$3; //6
-			int symbol_exist_or_not = -10; //not exist
-			Header *tmp=cur_header;
-			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
-			while(tmp->pre!=NULL)
+			if(while_relation==0)
 			{
-				if(symbol_exist_or_not!=-10)
-				{
-					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-					}
+				//if(integer_or_not==1)
+				//{
+					//sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
+					sprintf(b,"\tfsub\n\tf2i\n\tifgt LABEL_GT\n");
 					strcat(fun_content,b);
 					strcpy(b,"");
-					break;
-				}
-				tmp=tmp->pre;
-				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
-				if(symbol_exist_or_not!=-10)
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
+				//}
+				/*
+				else if(integer_or_not==0)
 				{
-					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-					}
+					//sprintf(b,"\tldc %f\n\tfsub\n\tifgt LABEL_GT\n",v3->f_val);
+					sprintf(b,"\tfsub\n\tifgt LABEL_GT\n");
 					strcat(fun_content,b);
 					strcpy(b,"");
-					break;
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
 				}
+				*/
 			}
-			if(integer_or_not==1)
+			else
 			{
-				//sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
-				sprintf(b,"\tfsub\n\tf2i\n\tifgt LABEL_GT\n");
-				strcat(fun_content,b);
-				strcpy(b,"");
-				Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
-			}
-			else if(integer_or_not==0)
-			{
-				//sprintf(b,"\tldc %f\n\tfsub\n\tifgt LABEL_GT\n",v3->f_val);
-				sprintf(b,"\tfsub\n\tifgt LABEL_GT\n");
-				strcat(fun_content,b);
-				strcpy(b,"");
-				Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
+				//if(integer_or_not==1)
+				//{
+					//sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
+					sprintf(b,"\tfsub\n\tf2i\n\tifgt LABEL_GT\n\tgoto EXIT_0\nLABEL_GT:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					//sprintf(b,"\tldc %f\n\tfsub\n\tifgt LABEL_GT\n",v3->f_val);
+					sprintf(b,"\tfsub\n\tifgt LABEL_GT\n\tgoto EXIT_0\nLABEL_GT:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}	
+				*/			
 			}
 			integer_or_not=1;
 		}
 	| relational_expression LTE shift_expression
+		{	//<=
+			Value *v1=&$1; //a
+			Value *v3=&$3; //6
+			if(while_relation==0)
+			{
+				//if(integer_or_not==1)
+				//{
+					sprintf(b,"\tfsub\n\tf2i\n\tifle LABEL_LE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_LE:\n",strlen("\tgoto EXIT_0\nLABEL_LE:\n"));
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					sprintf(b,"\tfsub\n\tifle LABEL_LE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_LE:\n",strlen("\tgoto EXIT_0\nLABEL_LE:\n"));
+				}
+				*/
+			}
+			else
+			{
+				//if(integer_or_not==1)
+				//{
+					sprintf(b,"\tfsub\n\tf2i\n\tifle LABEL_LE\n\tgoto EXIT_0\nLABEL_LE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					sprintf(b,"\tfsub\n\tifle LABEL_LE\n\tgoto EXIT_0\nLABEL_LE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
+				*/				
+			}
+			integer_or_not=1;
+		}
 	| relational_expression MTE shift_expression
+		{	//>=
+			Value *v1=&$1; //a
+			Value *v3=&$3; //6
+			if(while_relation==0)
+			{
+				//if(integer_or_not==1)
+				//{
+					sprintf(b,"\tfsub\n\tf2i\n\tifge LABEL_GE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_GE:\n",strlen("\tgoto EXIT_0\nLABEL_GE:\n"));
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					sprintf(b,"\tfsub\n\tifge LABEL_GE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_GE:\n",strlen("\tgoto EXIT_0\nLABEL_GE:\n"));
+				}
+				*/
+			}
+			else
+			{
+				//if(integer_or_not==1)
+				//{
+					sprintf(b,"\tfsub\n\tf2i\n\tifge LABEL_GE\n\tgoto EXIT_0\nLABEL_GE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					sprintf(b,"\tfsub\n\tifge LABEL_GE\n\tgoto EXIT_0\nLABEL_GE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}	
+				*/			
+			}
+			integer_or_not=1;
+		}
 	;
 
 equality_expression
@@ -1142,63 +1213,94 @@ equality_expression
 		{
 			Value *v1=&$1; //a
 			Value *v3=&$3; //40
-			int symbol_exist_or_not = -10; //not exist
-			Header *tmp=cur_header;
-			symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
-			while(tmp->pre!=NULL)
+			if(while_relation==0)
 			{
-				if(symbol_exist_or_not!=-10)
-				{
-					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-					}
+				//if(integer_or_not==1)
+				//{
+					//sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
+					sprintf(b,"\tfsub\n\tf2i\n\tifeq LABEL_EQ\n");
 					strcat(fun_content,b);
 					strcpy(b,"");
-					break;
-				}
-				tmp=tmp->pre;
-				symbol_exist_or_not = lookup_symbol(tmp,v1->id_name);
-				if(symbol_exist_or_not!=-10)
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
+				//}
+				/*
+				else if(integer_or_not==0)
 				{
-					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v1->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-					}
+					//sprintf(b,"\tldc %f\n\tfsub\n\tifeq LABEL_EQ\n",v3->f_val);
+					sprintf(b,"\tfsub\n\tifeq LABEL_EQ\n");
 					strcat(fun_content,b);
 					strcpy(b,"");
-					break;
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
 				}
+				*/
 			}
-			if(integer_or_not==1)
+			else
 			{
-				//sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
-				sprintf(b,"\tfsub\n\tf2i\n\tifeq LABEL_EQ\n");
-				strcat(fun_content,b);
-				strcpy(b,"");
-				label_lock=1;
-				Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
-			}
-			else if(integer_or_not==0)
-			{
-				//sprintf(b,"\tldc %f\n\tfsub\n\tifeq LABEL_EQ\n",v3->f_val);
-				sprintf(b,"\tfsub\n\tifeq LABEL_EQ\n");
-				strcat(fun_content,b);
-				strcpy(b,"");
-				label_lock=1;
-				Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
+				//if(integer_or_not==1)
+				//{
+					//sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
+					sprintf(b,"\tfsub\n\tf2i\n\tifeq LABEL_EQ\n\tgoto EXIT_0\nLABEL_EQ:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					//sprintf(b,"\tldc %f\n\tfsub\n\tifeq LABEL_EQ\n",v3->f_val);
+					sprintf(b,"\tfsub\n\tifeq LABEL_EQ\n\tgoto EXIT_0\nLABEL_EQ:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}	
+				*/			
 			}
 			integer_or_not=1;
 		}
 	| equality_expression NE relational_expression
+		{
+			Value *v1=&$1; //a
+			Value *v3=&$3; //40
+			if(while_relation==0)
+			{
+				//if(integer_or_not==1)
+				//{
+					sprintf(b,"\tfsub\n\tf2i\n\tifne LABEL_NE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_NE:\n",strlen("\tgoto EXIT_0\nLABEL_NE:\n"));
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					sprintf(b,"\tfsub\n\tifne LABEL_NE\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+					label_lock=1;
+					Push("\tgoto EXIT_0\nLABEL_NE:\n",strlen("\tgoto EXIT_0\nLABEL_NE:\n"));
+				}
+				*/
+			}
+			else
+			{
+				//if(integer_or_not==1)
+				//{
+					sprintf(b,"\tfsub\n\tf2i\n\tifne LABEL_NE\n\tgoto EXIT_0\nLABEL_NE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				//}
+				/*
+				else if(integer_or_not==0)
+				{
+					sprintf(b,"\tfsub\n\tifne LABEL_NE\n\tgoto EXIT_0\nLABEL_NE:\n");
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}	
+				*/			
+			}
+			integer_or_not=1;
+		}
 	;
 
 and_expression
@@ -1523,15 +1625,31 @@ print_arg
 		{
 			$$ = yylval.val;
 			sprintf(b,"\tldc %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.i_val);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	| F_CONST
 		{
 			$$ = yylval.val;
 			sprintf(b,"\tldc %f\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",$$.f_val);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	| ID 	
 		{
@@ -1547,8 +1665,16 @@ print_arg
 						sprintf(b,"\tiload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",symbol_exist_or_not);
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 						sprintf(b,"\tfload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",symbol_exist_or_not);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 				tmp=tmp->pre;
@@ -1563,8 +1689,16 @@ print_arg
 							sprintf(b,"\tgetstatic compiler_hw3/%s F\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",$$.id_name,symbol_exist_or_not);
 						else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
 							sprintf(b,"\tgetstatic compiler_hw3/%s Z\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(I)V\n",$$.id_name,symbol_exist_or_not);
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					if(lookup_symbol_type(tmp,$$.id_name)==0||lookup_symbol_type(tmp,$$.id_name)==4||lookup_symbol_type(tmp,$$.id_name)==2) //int or string or bool
@@ -1573,8 +1707,16 @@ print_arg
 					}
 					else if(lookup_symbol_type(tmp,$$.id_name)==1) //float
 						sprintf(b,"\tfload %d\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n\tswap\n\tinvokevirtual java/io/PrintStream/println(F)V\n",symbol_exist_or_not);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 			}
@@ -1832,11 +1974,27 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' {if(label_lock!=0) strcat(label_content,Pop());} statement else_or_not 
+	: IF {label_lock=1;} '(' expression ')' {if(label_lock!=0) {strcat(label_content,Pop());}} statement else_or_not 
+		{
+			if(strcmp(label_content,"")==0) 
+			{
+				strcat(fun_content,"\tgoto EXIT_0\nEXIT_0:\n");
+			}
+
+			strcat(fun_content,label_content); 
+			strcpy(label_content,"");
+			label_lock=0;
+			if(else_tr==0)
+			{
+				strcat(fun_content,"EXIT_0:\n");
+			}
+		}
 
 else_or_not
-	: ELSE statement 
+	: ELSE {label_lock=0;else_tr=1;} statement 
 		{
+			else_tr=0;
+			/*
 			if(strcmp(label_content,"")==0) 
 			{
 				strcat(fun_content,"\tgoto EXIT_0\nEXIT_0:\n");
@@ -1844,11 +2002,12 @@ else_or_not
 			strcat(fun_content,label_content); 
 			strcpy(label_content,"");
 			label_lock=0;
+			*/
 		}
 	| 
 
 iteration_statement
-	: WHILE {strcat(fun_content,"LABEL_BEGIN:\n");} '(' expression ')' statement {strcat(fun_content,"\tgoto LABEL_BEGIN\nLABEL_FALSE:\n\tgoto EXIT_0\nEXIT_0:\n");}
+	: WHILE {strcat(fun_content,"LABEL_BEGIN:\n"); while_relation=1;} '(' expression ')' statement {strcat(fun_content,"\tgoto LABEL_BEGIN\nLABEL_FALSE:\n\tgoto EXIT_0\nEXIT_0:\n"); while_relation=0;}
 	| FOR '(' expression_statement expression_statement ')' {/*new_scope();*/} statement {/*int lineno=yylineno+1;printf("%d: %s\n", lineno, buf);printline_or_not=0;dump_scope();*/}
 	| FOR '(' expression_statement expression_statement expression ')' {/*new_scope();*/} statement {/*int lineno=yylineno+1;printf("%d: %s\n", lineno, buf);printline_or_not=0;dump_scope();*/}
 	;
@@ -2487,6 +2646,7 @@ void Push(char d[],int len)
 		Q_TAIL->next=ptr;
 		Q_TAIL=ptr;
 	}
+	label_num++;
 }
 
 char* Pop()
@@ -2498,6 +2658,7 @@ char* Pop()
 	}
 	Q_HEAD=ptr->next;
 	free(ptr);
+	label_num--;
 	return item;
 }
 

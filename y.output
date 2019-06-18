@@ -14,7 +14,7 @@
 狀態 88 衝突：30 項偏移/縮減
 狀態 131 衝突：30 項偏移/縮減
 狀態 201 衝突：30 項偏移/縮減
-狀態 285 衝突：1 項偏移/縮減
+狀態 292 衝突：1 項偏移/縮減
 
 
 文法
@@ -240,44 +240,48 @@
 
   160 $@7: %empty
 
-  161 selection_statement: IF '(' expression ')' $@7 statement else_or_not
+  161 $@8: %empty
 
-  162 else_or_not: ELSE statement
-  163            | %empty
+  162 selection_statement: IF $@7 '(' expression ')' $@8 statement else_or_not
 
-  164 $@8: %empty
+  163 $@9: %empty
 
-  165 iteration_statement: WHILE $@8 '(' expression ')' statement
+  164 else_or_not: ELSE $@9 statement
+  165            | %empty
 
-  166 $@9: %empty
+  166 $@10: %empty
 
-  167 iteration_statement: FOR '(' expression_statement expression_statement ')' $@9 statement
+  167 iteration_statement: WHILE $@10 '(' expression ')' statement
 
-  168 $@10: %empty
+  168 $@11: %empty
 
-  169 iteration_statement: FOR '(' expression_statement expression_statement expression ')' $@10 statement
+  169 iteration_statement: FOR '(' expression_statement expression_statement ')' $@11 statement
 
-  170 jump_statement: CONT ';'
-  171               | BREAK ';'
-  172               | RET ';'
-  173               | RET expression ';'
+  170 $@12: %empty
 
-  174 program: external_declaration
-  175        | program external_declaration
+  171 iteration_statement: FOR '(' expression_statement expression_statement expression ')' $@12 statement
 
-  176 external_declaration: function_definition
-  177                     | declaration
+  172 jump_statement: CONT ';'
+  173               | BREAK ';'
+  174               | RET ';'
+  175               | RET expression ';'
 
-  178 $@11: %empty
+  176 program: external_declaration
+  177        | program external_declaration
 
-  179 function_definition: declaration_specifiers declarator $@11 compound_statement_fun
-  180                    | declarator declaration_list compound_statement_fun
-  181                    | declarator compound_statement_fun
+  178 external_declaration: function_definition
+  179                     | declaration
 
-  182 compound_statement_fun: '{' '}'
-  183                       | '{' statement_list '}'
-  184                       | '{' declaration_list '}'
-  185                       | '{' declaration_list statement_list '}'
+  180 $@13: %empty
+
+  181 function_definition: declaration_specifiers declarator $@13 compound_statement_fun
+  182                    | declarator declaration_list compound_statement_fun
+  183                    | declarator compound_statement_fun
+
+  184 compound_statement_fun: '{' '}'
+  185                       | '{' statement_list '}'
+  186                       | '{' declaration_list '}'
+  187                       | '{' declaration_list statement_list '}'
 
 
 終結語詞，附有它們出現處的規則
@@ -287,10 +291,10 @@ $end (0) 0
 '"' (34) 4 11 80
 '%' (37) 41
 '&' (38) 30 55
-'(' (40) 5 12 14 15 37 79 104 108 109 111 127 132 133 134 135 161 165
-    167 169
-')' (41) 5 12 14 15 37 79 104 108 109 111 127 132 133 134 135 161 165
-    167 169
+'(' (40) 5 12 14 15 37 79 104 108 109 111 127 132 133 134 135 162 167
+    169 171
+')' (41) 5 12 14 15 37 79 104 108 109 111 127 132 133 134 135 162 167
+    169 171
 '*' (42) 31 39 112 113
 '+' (43) 32 43
 ',' (44) 25 76 92 116 121 138 140
@@ -298,7 +302,7 @@ $end (0) 0
 '.' (46) 21
 '/' (47) 40
 ':' (58) 65 147
-';' (59) 85 86 87 158 159 170 171 172 173
+';' (59) 85 86 87 158 159 172 173 174 175
 '<' (60) 47
 '=' (61) 67 87
 '>' (62) 48
@@ -306,9 +310,9 @@ $end (0) 0
 '[' (91) 17 105 106 128 129 130 131
 ']' (93) 17 105 106 128 129 130 131
 '^' (94) 57
-'{' (123) 137 138 149 182 183 184 185
+'{' (123) 137 138 149 184 185 186 187
 '|' (124) 59
-'}' (125) 137 138 150 151 152 153 182 183 184 185
+'}' (125) 137 138 150 151 152 153 184 185 186 187
 '~' (126) 34
 error (256) 74
 INC (258) 22 27
@@ -326,19 +330,19 @@ AND (269) 61
 OR (270) 63
 STR_TYPE (271) 98
 PRINT (272) 79
-IF (273) 161
-ELSE (274) 162
-FOR (275) 167 169
-WHILE (276) 165
+IF (273) 162
+ELSE (274) 164
+FOR (275) 169 171
+WHILE (276) 167
 INT (277) 95
 FLOAT (278) 96
 VOID (279) 94
 BOOL (280) 97
 TRUE (281) 6 77
 FALSE (282) 7 78
-RET (283) 172 173
-CONT (284) 170
-BREAK (285) 171
+RET (283) 174 175
+CONT (284) 172
+BREAK (285) 173
 I_CONST (286) 2 9 81
 F_CONST (287) 3 10 82
 STRING (288) 4 11 80
@@ -399,7 +403,7 @@ assignment_expression (83)
     70 71 72 75 76 136
 expression (84)
     於左側： 74 75 76 77 78 79, 於右側： 5 12 17 65 74 76 159
-    161 165 169 173
+    162 167 171 175
 $@3 (85)
     於左側： 73, 於右側： 74
 print_arg (86)
@@ -407,9 +411,9 @@ print_arg (86)
 constant_expression (87)
     於左側： 84, 於右側： 105 129 131
 declaration (88)
-    於左側： 85 86 87 88, 於右側： 154 155 156 157 177
+    於左側： 85 86 87 88, 於右側： 154 155 156 157 179
 declaration_specifiers (89)
-    於左側： 89 90, 於右側： 85 86 87 90 117 118 119 179
+    於左側： 89 90, 於右側： 85 86 87 90 117 118 119 181
 init_declarator_list (90)
     於左側： 91 92, 於右側： 86 92
 init_declarator (91)
@@ -419,7 +423,7 @@ type_specifier (92)
 specifier_qualifier_list (93)
     於左側： 99 100, 於右側： 99 122 123
 declarator (94)
-    於左側： 101 102, 於右側： 87 93 104 117 179 180 181
+    於左側： 101 102, 於右側： 87 93 104 117 181 182 183
 direct_declarator (95)
     於左側： 103 104 105 106 108 109 111, 於右側： 101 102
     105 106 108 109 111
@@ -450,7 +454,7 @@ initializer_list (107)
     於左側： 139 140, 於右側： 137 138 140
 statement (108)
     於左側： 141 142 143 144 145 146, 於右側： 147 156 157
-    161 162 165 167 169
+    162 164 167 169 171
 labeled_statement (109)
     於左側： 147, 於右側： 141
 compound_statement (110)
@@ -460,37 +464,41 @@ $@6 (111)
 after_LCB (112)
     於左側： 150 151 152 153, 於右側： 149
 declaration_list (113)
-    於左側： 154 155, 於右側： 152 153 155 180 184 185
+    於左側： 154 155, 於右側： 152 153 155 182 186 187
 statement_list (114)
-    於左側： 156 157, 於右側： 151 153 157 183 185
+    於左側： 156 157, 於右側： 151 153 157 185 187
 expression_statement (115)
-    於左側： 158 159, 於右側： 143 167 169
+    於左側： 158 159, 於右側： 143 169 171
 selection_statement (116)
-    於左側： 161, 於右側： 144
+    於左側： 162, 於右側： 144
 $@7 (117)
-    於左側： 160, 於右側： 161
-else_or_not (118)
-    於左側： 162 163, 於右側： 161
-iteration_statement (119)
-    於左側： 165 167 169, 於右側： 145
-$@8 (120)
-    於左側： 164, 於右側： 165
-$@9 (121)
-    於左側： 166, 於右側： 167
+    於左側： 160, 於右側： 162
+$@8 (118)
+    於左側： 161, 於右側： 162
+else_or_not (119)
+    於左側： 164 165, 於右側： 162
+$@9 (120)
+    於左側： 163, 於右側： 164
+iteration_statement (121)
+    於左側： 167 169 171, 於右側： 145
 $@10 (122)
+    於左側： 166, 於右側： 167
+$@11 (123)
     於左側： 168, 於右側： 169
-jump_statement (123)
-    於左側： 170 171 172 173, 於右側： 146
-program (124)
-    於左側： 174 175, 於右側： 0 175
-external_declaration (125)
-    於左側： 176 177, 於右側： 174 175
-function_definition (126)
-    於左側： 179 180 181, 於右側： 176
-$@11 (127)
-    於左側： 178, 於右側： 179
-compound_statement_fun (128)
-    於左側： 182 183 184 185, 於右側： 179 180 181
+$@12 (124)
+    於左側： 170, 於右側： 171
+jump_statement (125)
+    於左側： 172 173 174 175, 於右側： 146
+program (126)
+    於左側： 176 177, 於右側： 0 177
+external_declaration (127)
+    於左側： 178 179, 於右側： 176 177
+function_definition (128)
+    於左側： 181 182 183, 於右側： 178
+$@13 (129)
+    於左側： 180, 於右側： 181
+compound_statement_fun (130)
+    於左側： 184 185 186 187, 於右側： 181 182 183
 
 
 狀態 0
@@ -596,9 +604,9 @@ compound_statement_fun (128)
 
 狀態 9
 
-  177 external_declaration: declaration .
+  179 external_declaration: declaration .
 
-    $預設  使用規則 177 以縮減 (external_declaration)
+    $預設  使用規則 179 以縮減 (external_declaration)
 
 
 狀態 10
@@ -606,7 +614,7 @@ compound_statement_fun (128)
    85 declaration: declaration_specifiers . ';'
    86            | declaration_specifiers . init_declarator_list ';'
    87            | declaration_specifiers . declarator '=' initializer ';'
-  179 function_definition: declaration_specifiers . declarator $@11 compound_statement_fun
+  181 function_definition: declaration_specifiers . declarator $@13 compound_statement_fun
 
     ID   偏移，並進入狀態 6
     '('  偏移，並進入狀態 7
@@ -639,8 +647,8 @@ compound_statement_fun (128)
 
 狀態 12
 
-  180 function_definition: declarator . declaration_list compound_statement_fun
-  181                    | declarator . compound_statement_fun
+  182 function_definition: declarator . declaration_list compound_statement_fun
+  183                    | declarator . compound_statement_fun
 
     STR_TYPE  偏移，並進入狀態 1
     INT       偏移，並進入狀態 2
@@ -691,7 +699,7 @@ compound_statement_fun (128)
 狀態 15
 
     0 $accept: program . $end
-  175 program: program . external_declaration
+  177 program: program . external_declaration
 
     $end      偏移，並進入狀態 33
     STR_TYPE  偏移，並進入狀態 1
@@ -725,16 +733,16 @@ compound_statement_fun (128)
 
 狀態 16
 
-  174 program: external_declaration .
+  176 program: external_declaration .
 
-    $預設  使用規則 174 以縮減 (program)
+    $預設  使用規則 176 以縮減 (program)
 
 
 狀態 17
 
-  176 external_declaration: function_definition .
+  178 external_declaration: function_definition .
 
-    $預設  使用規則 176 以縮減 (external_declaration)
+    $預設  使用規則 178 以縮減 (external_declaration)
 
 
 狀態 18
@@ -778,14 +786,14 @@ compound_statement_fun (128)
 
    87 declaration: declaration_specifiers declarator . '=' initializer ';'
    93 init_declarator: declarator .
-  179 function_definition: declaration_specifiers declarator . $@11 compound_statement_fun
+  181 function_definition: declaration_specifiers declarator . $@13 compound_statement_fun
 
     '='  偏移，並進入狀態 38
 
-    '{'      使用規則 178 以縮減 ($@11)
+    '{'      使用規則 180 以縮減 ($@13)
     $預設  使用規則 93 以縮減 (init_declarator)
 
-    $@11  進入狀態 39
+    $@13  進入狀態 39
 
 
 狀態 24
@@ -797,10 +805,10 @@ compound_statement_fun (128)
 
 狀態 25
 
-  182 compound_statement_fun: '{' . '}'
-  183                       | '{' . statement_list '}'
-  184                       | '{' . declaration_list '}'
-  185                       | '{' . declaration_list statement_list '}'
+  184 compound_statement_fun: '{' . '}'
+  185                       | '{' . statement_list '}'
+  186                       | '{' . declaration_list '}'
+  187                       | '{' . declaration_list statement_list '}'
 
     INC       偏移，並進入狀態 40
     DEC       偏移，並進入狀態 41
@@ -926,7 +934,7 @@ compound_statement_fun (128)
 狀態 28
 
   155 declaration_list: declaration_list . declaration
-  180 function_definition: declarator declaration_list . compound_statement_fun
+  182 function_definition: declarator declaration_list . compound_statement_fun
 
     STR_TYPE  偏移，並進入狀態 1
     INT       偏移，並進入狀態 2
@@ -950,9 +958,9 @@ compound_statement_fun (128)
 
 狀態 29
 
-  181 function_definition: declarator compound_statement_fun .
+  183 function_definition: declarator compound_statement_fun .
 
-    $預設  使用規則 181 以縮減 (function_definition)
+    $預設  使用規則 183 以縮減 (function_definition)
 
 
 狀態 30
@@ -1038,9 +1046,9 @@ compound_statement_fun (128)
 
 狀態 34
 
-  175 program: program external_declaration .
+  177 program: program external_declaration .
 
-    $預設  使用規則 175 以縮減 (program)
+    $預設  使用規則 177 以縮減 (program)
 
 
 狀態 35
@@ -1116,7 +1124,7 @@ compound_statement_fun (128)
 
 狀態 39
 
-  179 function_definition: declaration_specifiers declarator $@11 . compound_statement_fun
+  181 function_definition: declaration_specifiers declarator $@13 . compound_statement_fun
 
     '{'  偏移，並進入狀態 25
 
@@ -1188,26 +1196,28 @@ compound_statement_fun (128)
 
 狀態 43
 
-  161 selection_statement: IF . '(' expression ')' $@7 statement else_or_not
+  162 selection_statement: IF . $@7 '(' expression ')' $@8 statement else_or_not
 
-    '('  偏移，並進入狀態 118
+    $預設  使用規則 160 以縮減 ($@7)
+
+    $@7  進入狀態 118
 
 
 狀態 44
 
-  167 iteration_statement: FOR . '(' expression_statement expression_statement ')' $@9 statement
-  169                    | FOR . '(' expression_statement expression_statement expression ')' $@10 statement
+  169 iteration_statement: FOR . '(' expression_statement expression_statement ')' $@11 statement
+  171                    | FOR . '(' expression_statement expression_statement expression ')' $@12 statement
 
     '('  偏移，並進入狀態 119
 
 
 狀態 45
 
-  165 iteration_statement: WHILE . $@8 '(' expression ')' statement
+  167 iteration_statement: WHILE . $@10 '(' expression ')' statement
 
-    $預設  使用規則 164 以縮減 ($@8)
+    $預設  使用規則 166 以縮減 ($@10)
 
-    $@8  進入狀態 120
+    $@10  進入狀態 120
 
 
 狀態 46
@@ -1252,8 +1262,8 @@ compound_statement_fun (128)
 
 狀態 48
 
-  172 jump_statement: RET . ';'
-  173               | RET . expression ';'
+  174 jump_statement: RET . ';'
+  175               | RET . expression ';'
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -1297,14 +1307,14 @@ compound_statement_fun (128)
 
 狀態 49
 
-  170 jump_statement: CONT . ';'
+  172 jump_statement: CONT . ';'
 
     ';'  偏移，並進入狀態 123
 
 
 狀態 50
 
-  171 jump_statement: BREAK . ';'
+  173 jump_statement: BREAK . ';'
 
     ';'  偏移，並進入狀態 124
 
@@ -1460,9 +1470,9 @@ compound_statement_fun (128)
 
 狀態 64
 
-  182 compound_statement_fun: '{' '}' .
+  184 compound_statement_fun: '{' '}' .
 
-    $預設  使用規則 182 以縮減 (compound_statement_fun)
+    $預設  使用規則 184 以縮減 (compound_statement_fun)
 
 
 狀態 65
@@ -1735,8 +1745,8 @@ compound_statement_fun (128)
 狀態 88
 
   155 declaration_list: declaration_list . declaration
-  184 compound_statement_fun: '{' declaration_list . '}'
-  185                       | '{' declaration_list . statement_list '}'
+  186 compound_statement_fun: '{' declaration_list . '}'
+  187                       | '{' declaration_list . statement_list '}'
 
     INC       偏移，並進入狀態 40
     DEC       偏移，並進入狀態 41
@@ -1836,7 +1846,7 @@ compound_statement_fun (128)
 狀態 89
 
   157 statement_list: statement_list . statement declaration
-  183 compound_statement_fun: '{' statement_list . '}'
+  185 compound_statement_fun: '{' statement_list . '}'
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -1940,9 +1950,9 @@ compound_statement_fun (128)
 
 狀態 96
 
-  180 function_definition: declarator declaration_list compound_statement_fun .
+  182 function_definition: declarator declaration_list compound_statement_fun .
 
-    $預設  使用規則 180 以縮減 (function_definition)
+    $預設  使用規則 182 以縮減 (function_definition)
 
 
 狀態 97
@@ -2111,9 +2121,9 @@ compound_statement_fun (128)
 
 狀態 113
 
-  179 function_definition: declaration_specifiers declarator $@11 compound_statement_fun .
+  181 function_definition: declaration_specifiers declarator $@13 compound_statement_fun .
 
-    $預設  使用規則 179 以縮減 (function_definition)
+    $預設  使用規則 181 以縮減 (function_definition)
 
 
 狀態 114
@@ -2188,51 +2198,15 @@ compound_statement_fun (128)
 
 狀態 118
 
-  161 selection_statement: IF '(' . expression ')' $@7 statement else_or_not
+  162 selection_statement: IF $@7 . '(' expression ')' $@8 statement else_or_not
 
-    INC      偏移，並進入狀態 40
-    DEC      偏移，並進入狀態 41
-    PRINT    偏移，並進入狀態 42
-    TRUE     偏移，並進入狀態 46
-    FALSE    偏移，並進入狀態 47
-    I_CONST  偏移，並進入狀態 51
-    F_CONST  偏移，並進入狀態 52
-    ID       偏移，並進入狀態 103
-    '"'      偏移，並進入狀態 54
-    '('      偏移，並進入狀態 55
-    '&'      偏移，並進入狀態 56
-    '*'      偏移，並進入狀態 57
-    '+'      偏移，並進入狀態 58
-    '-'      偏移，並進入狀態 59
-    '~'      偏移，並進入狀態 60
-    '!'      偏移，並進入狀態 61
-
-    primary_expression         進入狀態 65
-    primary_expression_forfun  進入狀態 66
-    postfix_expression_forfun  進入狀態 67
-    postfix_expression         進入狀態 68
-    unary_expression           進入狀態 69
-    unary_operator             進入狀態 70
-    cast_expression            進入狀態 71
-    multiplicative_expression  進入狀態 72
-    additive_expression        進入狀態 73
-    shift_expression           進入狀態 74
-    relational_expression      進入狀態 75
-    equality_expression        進入狀態 76
-    and_expression             進入狀態 77
-    exclusive_or_expression    進入狀態 78
-    inclusive_or_expression    進入狀態 79
-    logical_and_expression     進入狀態 80
-    logical_or_expression      進入狀態 81
-    conditional_expression     進入狀態 82
-    assignment_expression      進入狀態 83
-    expression                 進入狀態 185
+    '('  偏移，並進入狀態 185
 
 
 狀態 119
 
-  167 iteration_statement: FOR '(' . expression_statement expression_statement ')' $@9 statement
-  169                    | FOR '(' . expression_statement expression_statement expression ')' $@10 statement
+  169 iteration_statement: FOR '(' . expression_statement expression_statement ')' $@11 statement
+  171                    | FOR '(' . expression_statement expression_statement expression ')' $@12 statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -2277,23 +2251,23 @@ compound_statement_fun (128)
 
 狀態 120
 
-  165 iteration_statement: WHILE $@8 . '(' expression ')' statement
+  167 iteration_statement: WHILE $@10 . '(' expression ')' statement
 
     '('  偏移，並進入狀態 187
 
 
 狀態 121
 
-  172 jump_statement: RET ';' .
+  174 jump_statement: RET ';' .
 
-    $預設  使用規則 172 以縮減 (jump_statement)
+    $預設  使用規則 174 以縮減 (jump_statement)
 
 
 狀態 122
 
    74 expression: expression . $@3 error
    76           | expression . ',' assignment_expression
-  173 jump_statement: RET expression . ';'
+  175 jump_statement: RET expression . ';'
 
     ','  偏移，並進入狀態 161
     ';'  偏移，並進入狀態 188
@@ -2305,16 +2279,16 @@ compound_statement_fun (128)
 
 狀態 123
 
-  170 jump_statement: CONT ';' .
+  172 jump_statement: CONT ';' .
 
-    $預設  使用規則 170 以縮減 (jump_statement)
+    $預設  使用規則 172 以縮減 (jump_statement)
 
 
 狀態 124
 
-  171 jump_statement: BREAK ';' .
+  173 jump_statement: BREAK ';' .
 
-    $預設  使用規則 171 以縮減 (jump_statement)
+    $預設  使用規則 173 以縮減 (jump_statement)
 
 
 狀態 125
@@ -3493,15 +3467,15 @@ compound_statement_fun (128)
 
 狀態 165
 
-  184 compound_statement_fun: '{' declaration_list '}' .
+  186 compound_statement_fun: '{' declaration_list '}' .
 
-    $預設  使用規則 184 以縮減 (compound_statement_fun)
+    $預設  使用規則 186 以縮減 (compound_statement_fun)
 
 
 狀態 166
 
   157 statement_list: statement_list . statement declaration
-  185 compound_statement_fun: '{' declaration_list statement_list . '}'
+  187 compound_statement_fun: '{' declaration_list statement_list . '}'
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -3560,9 +3534,9 @@ compound_statement_fun (128)
 
 狀態 167
 
-  183 compound_statement_fun: '{' statement_list '}' .
+  185 compound_statement_fun: '{' statement_list '}' .
 
-    $預設  使用規則 183 以縮減 (compound_statement_fun)
+    $預設  使用規則 185 以縮減 (compound_statement_fun)
 
 
 狀態 168
@@ -3715,22 +3689,51 @@ compound_statement_fun (128)
 
 狀態 185
 
-   74 expression: expression . $@3 error
-   76           | expression . ',' assignment_expression
-  161 selection_statement: IF '(' expression . ')' $@7 statement else_or_not
+  162 selection_statement: IF $@7 '(' . expression ')' $@8 statement else_or_not
 
-    ')'  偏移，並進入狀態 245
-    ','  偏移，並進入狀態 161
+    INC      偏移，並進入狀態 40
+    DEC      偏移，並進入狀態 41
+    PRINT    偏移，並進入狀態 42
+    TRUE     偏移，並進入狀態 46
+    FALSE    偏移，並進入狀態 47
+    I_CONST  偏移，並進入狀態 51
+    F_CONST  偏移，並進入狀態 52
+    ID       偏移，並進入狀態 103
+    '"'      偏移，並進入狀態 54
+    '('      偏移，並進入狀態 55
+    '&'      偏移，並進入狀態 56
+    '*'      偏移，並進入狀態 57
+    '+'      偏移，並進入狀態 58
+    '-'      偏移，並進入狀態 59
+    '~'      偏移，並進入狀態 60
+    '!'      偏移，並進入狀態 61
 
-    $預設  使用規則 73 以縮減 ($@3)
-
-    $@3  進入狀態 163
+    primary_expression         進入狀態 65
+    primary_expression_forfun  進入狀態 66
+    postfix_expression_forfun  進入狀態 67
+    postfix_expression         進入狀態 68
+    unary_expression           進入狀態 69
+    unary_operator             進入狀態 70
+    cast_expression            進入狀態 71
+    multiplicative_expression  進入狀態 72
+    additive_expression        進入狀態 73
+    shift_expression           進入狀態 74
+    relational_expression      進入狀態 75
+    equality_expression        進入狀態 76
+    and_expression             進入狀態 77
+    exclusive_or_expression    進入狀態 78
+    inclusive_or_expression    進入狀態 79
+    logical_and_expression     進入狀態 80
+    logical_or_expression      進入狀態 81
+    conditional_expression     進入狀態 82
+    assignment_expression      進入狀態 83
+    expression                 進入狀態 245
 
 
 狀態 186
 
-  167 iteration_statement: FOR '(' expression_statement . expression_statement ')' $@9 statement
-  169                    | FOR '(' expression_statement . expression_statement expression ')' $@10 statement
+  169 iteration_statement: FOR '(' expression_statement . expression_statement ')' $@11 statement
+  171                    | FOR '(' expression_statement . expression_statement expression ')' $@12 statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -3775,7 +3778,7 @@ compound_statement_fun (128)
 
 狀態 187
 
-  165 iteration_statement: WHILE $@8 '(' . expression ')' statement
+  167 iteration_statement: WHILE $@10 '(' . expression ')' statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -3818,9 +3821,9 @@ compound_statement_fun (128)
 
 狀態 188
 
-  173 jump_statement: RET expression ';' .
+  175 jump_statement: RET expression ';' .
 
-    $預設  使用規則 173 以縮減 (jump_statement)
+    $預設  使用規則 175 以縮減 (jump_statement)
 
 
 狀態 189
@@ -4469,9 +4472,9 @@ compound_statement_fun (128)
 
 狀態 232
 
-  185 compound_statement_fun: '{' declaration_list statement_list '}' .
+  187 compound_statement_fun: '{' declaration_list statement_list '}' .
 
-    $預設  使用規則 185 以縮減 (compound_statement_fun)
+    $預設  使用規則 187 以縮減 (compound_statement_fun)
 
 
 狀態 233
@@ -4638,17 +4641,22 @@ compound_statement_fun (128)
 
 狀態 245
 
-  161 selection_statement: IF '(' expression ')' . $@7 statement else_or_not
+   74 expression: expression . $@3 error
+   76           | expression . ',' assignment_expression
+  162 selection_statement: IF $@7 '(' expression . ')' $@8 statement else_or_not
 
-    $預設  使用規則 160 以縮減 ($@7)
+    ')'  偏移，並進入狀態 270
+    ','  偏移，並進入狀態 161
 
-    $@7  進入狀態 270
+    $預設  使用規則 73 以縮減 ($@3)
+
+    $@3  進入狀態 163
 
 
 狀態 246
 
-  167 iteration_statement: FOR '(' expression_statement expression_statement . ')' $@9 statement
-  169                    | FOR '(' expression_statement expression_statement . expression ')' $@10 statement
+  169 iteration_statement: FOR '(' expression_statement expression_statement . ')' $@11 statement
+  171                    | FOR '(' expression_statement expression_statement . expression ')' $@12 statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -4694,7 +4702,7 @@ compound_statement_fun (128)
 
    74 expression: expression . $@3 error
    76           | expression . ',' assignment_expression
-  165 iteration_statement: WHILE $@8 '(' expression . ')' statement
+  167 iteration_statement: WHILE $@10 '(' expression . ')' statement
 
     ')'  偏移，並進入狀態 273
     ','  偏移，並進入狀態 161
@@ -5003,76 +5011,27 @@ compound_statement_fun (128)
 
 狀態 270
 
-  161 selection_statement: IF '(' expression ')' $@7 . statement else_or_not
+  162 selection_statement: IF $@7 '(' expression ')' . $@8 statement else_or_not
 
-    INC      偏移，並進入狀態 40
-    DEC      偏移，並進入狀態 41
-    PRINT    偏移，並進入狀態 42
-    IF       偏移，並進入狀態 43
-    FOR      偏移，並進入狀態 44
-    WHILE    偏移，並進入狀態 45
-    TRUE     偏移，並進入狀態 46
-    FALSE    偏移，並進入狀態 47
-    RET      偏移，並進入狀態 48
-    CONT     偏移，並進入狀態 49
-    BREAK    偏移，並進入狀態 50
-    I_CONST  偏移，並進入狀態 51
-    F_CONST  偏移，並進入狀態 52
-    ID       偏移，並進入狀態 53
-    '"'      偏移，並進入狀態 54
-    '('      偏移，並進入狀態 55
-    '&'      偏移，並進入狀態 56
-    '*'      偏移，並進入狀態 57
-    '+'      偏移，並進入狀態 58
-    '-'      偏移，並進入狀態 59
-    '~'      偏移，並進入狀態 60
-    '!'      偏移，並進入狀態 61
-    ';'      偏移，並進入狀態 62
-    '{'      偏移，並進入狀態 63
+    $預設  使用規則 161 以縮減 ($@8)
 
-    primary_expression         進入狀態 65
-    primary_expression_forfun  進入狀態 66
-    postfix_expression_forfun  進入狀態 67
-    postfix_expression         進入狀態 68
-    unary_expression           進入狀態 69
-    unary_operator             進入狀態 70
-    cast_expression            進入狀態 71
-    multiplicative_expression  進入狀態 72
-    additive_expression        進入狀態 73
-    shift_expression           進入狀態 74
-    relational_expression      進入狀態 75
-    equality_expression        進入狀態 76
-    and_expression             進入狀態 77
-    exclusive_or_expression    進入狀態 78
-    inclusive_or_expression    進入狀態 79
-    logical_and_expression     進入狀態 80
-    logical_or_expression      進入狀態 81
-    conditional_expression     進入狀態 82
-    assignment_expression      進入狀態 83
-    expression                 進入狀態 84
-    statement                  進入狀態 285
-    labeled_statement          進入狀態 86
-    compound_statement         進入狀態 87
-    expression_statement       進入狀態 90
-    selection_statement        進入狀態 91
-    iteration_statement        進入狀態 92
-    jump_statement             進入狀態 93
+    $@8  進入狀態 285
 
 
 狀態 271
 
-  167 iteration_statement: FOR '(' expression_statement expression_statement ')' . $@9 statement
+  169 iteration_statement: FOR '(' expression_statement expression_statement ')' . $@11 statement
 
-    $預設  使用規則 166 以縮減 ($@9)
+    $預設  使用規則 168 以縮減 ($@11)
 
-    $@9  進入狀態 286
+    $@11  進入狀態 286
 
 
 狀態 272
 
    74 expression: expression . $@3 error
    76           | expression . ',' assignment_expression
-  169 iteration_statement: FOR '(' expression_statement expression_statement expression . ')' $@10 statement
+  171 iteration_statement: FOR '(' expression_statement expression_statement expression . ')' $@12 statement
 
     ')'  偏移，並進入狀態 287
     ','  偏移，並進入狀態 161
@@ -5084,7 +5043,7 @@ compound_statement_fun (128)
 
 狀態 273
 
-  165 iteration_statement: WHILE $@8 '(' expression ')' . statement
+  167 iteration_statement: WHILE $@10 '(' expression ')' . statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -5253,19 +5212,7 @@ compound_statement_fun (128)
 
 狀態 285
 
-  161 selection_statement: IF '(' expression ')' $@7 statement . else_or_not
-
-    ELSE  偏移，並進入狀態 292
-
-    ELSE     [使用規則 163 以縮減 (else_or_not)]
-    $預設  使用規則 163 以縮減 (else_or_not)
-
-    else_or_not  進入狀態 293
-
-
-狀態 286
-
-  167 iteration_statement: FOR '(' expression_statement expression_statement ')' $@9 . statement
+  162 selection_statement: IF $@7 '(' expression ')' $@8 . statement else_or_not
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -5312,7 +5259,65 @@ compound_statement_fun (128)
     conditional_expression     進入狀態 82
     assignment_expression      進入狀態 83
     expression                 進入狀態 84
-    statement                  進入狀態 294
+    statement                  進入狀態 292
+    labeled_statement          進入狀態 86
+    compound_statement         進入狀態 87
+    expression_statement       進入狀態 90
+    selection_statement        進入狀態 91
+    iteration_statement        進入狀態 92
+    jump_statement             進入狀態 93
+
+
+狀態 286
+
+  169 iteration_statement: FOR '(' expression_statement expression_statement ')' $@11 . statement
+
+    INC      偏移，並進入狀態 40
+    DEC      偏移，並進入狀態 41
+    PRINT    偏移，並進入狀態 42
+    IF       偏移，並進入狀態 43
+    FOR      偏移，並進入狀態 44
+    WHILE    偏移，並進入狀態 45
+    TRUE     偏移，並進入狀態 46
+    FALSE    偏移，並進入狀態 47
+    RET      偏移，並進入狀態 48
+    CONT     偏移，並進入狀態 49
+    BREAK    偏移，並進入狀態 50
+    I_CONST  偏移，並進入狀態 51
+    F_CONST  偏移，並進入狀態 52
+    ID       偏移，並進入狀態 53
+    '"'      偏移，並進入狀態 54
+    '('      偏移，並進入狀態 55
+    '&'      偏移，並進入狀態 56
+    '*'      偏移，並進入狀態 57
+    '+'      偏移，並進入狀態 58
+    '-'      偏移，並進入狀態 59
+    '~'      偏移，並進入狀態 60
+    '!'      偏移，並進入狀態 61
+    ';'      偏移，並進入狀態 62
+    '{'      偏移，並進入狀態 63
+
+    primary_expression         進入狀態 65
+    primary_expression_forfun  進入狀態 66
+    postfix_expression_forfun  進入狀態 67
+    postfix_expression         進入狀態 68
+    unary_expression           進入狀態 69
+    unary_operator             進入狀態 70
+    cast_expression            進入狀態 71
+    multiplicative_expression  進入狀態 72
+    additive_expression        進入狀態 73
+    shift_expression           進入狀態 74
+    relational_expression      進入狀態 75
+    equality_expression        進入狀態 76
+    and_expression             進入狀態 77
+    exclusive_or_expression    進入狀態 78
+    inclusive_or_expression    進入狀態 79
+    logical_and_expression     進入狀態 80
+    logical_or_expression      進入狀態 81
+    conditional_expression     進入狀態 82
+    assignment_expression      進入狀態 83
+    expression                 進入狀態 84
+    statement                  進入狀態 293
     labeled_statement          進入狀態 86
     compound_statement         進入狀態 87
     expression_statement       進入狀態 90
@@ -5323,18 +5328,18 @@ compound_statement_fun (128)
 
 狀態 287
 
-  169 iteration_statement: FOR '(' expression_statement expression_statement expression ')' . $@10 statement
+  171 iteration_statement: FOR '(' expression_statement expression_statement expression ')' . $@12 statement
 
-    $預設  使用規則 168 以縮減 ($@10)
+    $預設  使用規則 170 以縮減 ($@12)
 
-    $@10  進入狀態 295
+    $@12  進入狀態 294
 
 
 狀態 288
 
-  165 iteration_statement: WHILE $@8 '(' expression ')' statement .
+  167 iteration_statement: WHILE $@10 '(' expression ')' statement .
 
-    $預設  使用規則 165 以縮減 (iteration_statement)
+    $預設  使用規則 167 以縮減 (iteration_statement)
 
 
 狀態 289
@@ -5360,79 +5365,26 @@ compound_statement_fun (128)
 
 狀態 292
 
-  162 else_or_not: ELSE . statement
+  162 selection_statement: IF $@7 '(' expression ')' $@8 statement . else_or_not
 
-    INC      偏移，並進入狀態 40
-    DEC      偏移，並進入狀態 41
-    PRINT    偏移，並進入狀態 42
-    IF       偏移，並進入狀態 43
-    FOR      偏移，並進入狀態 44
-    WHILE    偏移，並進入狀態 45
-    TRUE     偏移，並進入狀態 46
-    FALSE    偏移，並進入狀態 47
-    RET      偏移，並進入狀態 48
-    CONT     偏移，並進入狀態 49
-    BREAK    偏移，並進入狀態 50
-    I_CONST  偏移，並進入狀態 51
-    F_CONST  偏移，並進入狀態 52
-    ID       偏移，並進入狀態 53
-    '"'      偏移，並進入狀態 54
-    '('      偏移，並進入狀態 55
-    '&'      偏移，並進入狀態 56
-    '*'      偏移，並進入狀態 57
-    '+'      偏移，並進入狀態 58
-    '-'      偏移，並進入狀態 59
-    '~'      偏移，並進入狀態 60
-    '!'      偏移，並進入狀態 61
-    ';'      偏移，並進入狀態 62
-    '{'      偏移，並進入狀態 63
+    ELSE  偏移，並進入狀態 295
 
-    primary_expression         進入狀態 65
-    primary_expression_forfun  進入狀態 66
-    postfix_expression_forfun  進入狀態 67
-    postfix_expression         進入狀態 68
-    unary_expression           進入狀態 69
-    unary_operator             進入狀態 70
-    cast_expression            進入狀態 71
-    multiplicative_expression  進入狀態 72
-    additive_expression        進入狀態 73
-    shift_expression           進入狀態 74
-    relational_expression      進入狀態 75
-    equality_expression        進入狀態 76
-    and_expression             進入狀態 77
-    exclusive_or_expression    進入狀態 78
-    inclusive_or_expression    進入狀態 79
-    logical_and_expression     進入狀態 80
-    logical_or_expression      進入狀態 81
-    conditional_expression     進入狀態 82
-    assignment_expression      進入狀態 83
-    expression                 進入狀態 84
-    statement                  進入狀態 296
-    labeled_statement          進入狀態 86
-    compound_statement         進入狀態 87
-    expression_statement       進入狀態 90
-    selection_statement        進入狀態 91
-    iteration_statement        進入狀態 92
-    jump_statement             進入狀態 93
+    ELSE     [使用規則 165 以縮減 (else_or_not)]
+    $預設  使用規則 165 以縮減 (else_or_not)
+
+    else_or_not  進入狀態 296
 
 
 狀態 293
 
-  161 selection_statement: IF '(' expression ')' $@7 statement else_or_not .
+  169 iteration_statement: FOR '(' expression_statement expression_statement ')' $@11 statement .
 
-    $預設  使用規則 161 以縮減 (selection_statement)
+    $預設  使用規則 169 以縮減 (iteration_statement)
 
 
 狀態 294
 
-  167 iteration_statement: FOR '(' expression_statement expression_statement ')' $@9 statement .
-
-    $預設  使用規則 167 以縮減 (iteration_statement)
-
-
-狀態 295
-
-  169 iteration_statement: FOR '(' expression_statement expression_statement expression ')' $@10 . statement
+  171 iteration_statement: FOR '(' expression_statement expression_statement expression ')' $@12 . statement
 
     INC      偏移，並進入狀態 40
     DEC      偏移，並進入狀態 41
@@ -5488,15 +5440,89 @@ compound_statement_fun (128)
     jump_statement             進入狀態 93
 
 
+狀態 295
+
+  164 else_or_not: ELSE . $@9 statement
+
+    $預設  使用規則 163 以縮減 ($@9)
+
+    $@9  進入狀態 298
+
+
 狀態 296
 
-  162 else_or_not: ELSE statement .
+  162 selection_statement: IF $@7 '(' expression ')' $@8 statement else_or_not .
 
-    $預設  使用規則 162 以縮減 (else_or_not)
+    $預設  使用規則 162 以縮減 (selection_statement)
 
 
 狀態 297
 
-  169 iteration_statement: FOR '(' expression_statement expression_statement expression ')' $@10 statement .
+  171 iteration_statement: FOR '(' expression_statement expression_statement expression ')' $@12 statement .
 
-    $預設  使用規則 169 以縮減 (iteration_statement)
+    $預設  使用規則 171 以縮減 (iteration_statement)
+
+
+狀態 298
+
+  164 else_or_not: ELSE $@9 . statement
+
+    INC      偏移，並進入狀態 40
+    DEC      偏移，並進入狀態 41
+    PRINT    偏移，並進入狀態 42
+    IF       偏移，並進入狀態 43
+    FOR      偏移，並進入狀態 44
+    WHILE    偏移，並進入狀態 45
+    TRUE     偏移，並進入狀態 46
+    FALSE    偏移，並進入狀態 47
+    RET      偏移，並進入狀態 48
+    CONT     偏移，並進入狀態 49
+    BREAK    偏移，並進入狀態 50
+    I_CONST  偏移，並進入狀態 51
+    F_CONST  偏移，並進入狀態 52
+    ID       偏移，並進入狀態 53
+    '"'      偏移，並進入狀態 54
+    '('      偏移，並進入狀態 55
+    '&'      偏移，並進入狀態 56
+    '*'      偏移，並進入狀態 57
+    '+'      偏移，並進入狀態 58
+    '-'      偏移，並進入狀態 59
+    '~'      偏移，並進入狀態 60
+    '!'      偏移，並進入狀態 61
+    ';'      偏移，並進入狀態 62
+    '{'      偏移，並進入狀態 63
+
+    primary_expression         進入狀態 65
+    primary_expression_forfun  進入狀態 66
+    postfix_expression_forfun  進入狀態 67
+    postfix_expression         進入狀態 68
+    unary_expression           進入狀態 69
+    unary_operator             進入狀態 70
+    cast_expression            進入狀態 71
+    multiplicative_expression  進入狀態 72
+    additive_expression        進入狀態 73
+    shift_expression           進入狀態 74
+    relational_expression      進入狀態 75
+    equality_expression        進入狀態 76
+    and_expression             進入狀態 77
+    exclusive_or_expression    進入狀態 78
+    inclusive_or_expression    進入狀態 79
+    logical_and_expression     進入狀態 80
+    logical_or_expression      進入狀態 81
+    conditional_expression     進入狀態 82
+    assignment_expression      進入狀態 83
+    expression                 進入狀態 84
+    statement                  進入狀態 299
+    labeled_statement          進入狀態 86
+    compound_statement         進入狀態 87
+    expression_statement       進入狀態 90
+    selection_statement        進入狀態 91
+    iteration_statement        進入狀態 92
+    jump_statement             進入狀態 93
+
+
+狀態 299
+
+  164 else_or_not: ELSE $@9 statement .
+
+    $預設  使用規則 164 以縮減 (else_or_not)

@@ -1,0 +1,10 @@
+if(label_lock!=0)
+{
+	strcat(label_content,b);
+	strcpy(b,"");
+}
+else
+{
+	strcat(fun_content,b);
+	strcpy(b,"");
+}
