@@ -5,7 +5,7 @@ void main(){
 	{
 		print(111);
 	}
-
-	print(777);
+	bool c=true;
+	print(c);
 	return;
 }
