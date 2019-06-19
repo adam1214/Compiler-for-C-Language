@@ -493,6 +493,11 @@ postfix_expression
         		cc = cc->next;
     		}
 		}
+		if(lookup_symbol(tmp,$$.id_name)==-10)
+		{
+			err=1;
+        	sprintf(errmsg, "Undeclared function %s", $$.id_name);
+		} 
 	}
 	| postfix_expression '.' ID
 	| postfix_expression INC
@@ -2668,60 +2673,7 @@ jump_statement
 	| RET expression ';'
 		{
 			Value *v2=&$2; //a
-			int symbol_exist_or_not = -10; //not exist
-			Header *tmp=cur_header;
-			symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
-			while(tmp->pre!=NULL)
-			{
-				if(symbol_exist_or_not!=-10)
-				{
-					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-						integer_or_not=0;
-					}
-					if(label_lock!=0)
-					{
-						strcat(label_content,b);
-						strcpy(b,"");
-					}
-					else
-					{
-						strcat(fun_content,b);
-						strcpy(b,"");
-					}
-					break;
-				}
-				tmp=tmp->pre;
-				symbol_exist_or_not = lookup_symbol(tmp,v2->id_name);
-				if(symbol_exist_or_not!=-10)
-				{
-					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
-					{
-						//sprintf(b,"\tiload %d\n",symbol_exist_or_not);
-					}
-					else if(lookup_symbol_type(tmp,v2->id_name)==1) //float
-					{
-						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
-						integer_or_not=0;
-					}
-					if(label_lock!=0)
-					{
-						strcat(label_content,b);
-						strcpy(b,"");
-					}
-					else
-					{
-						strcat(fun_content,b);
-						strcpy(b,"");
-					}
-					break;
-				}
-			}
+
 			if(integer_or_not==1)
 			{
 				if(label_lock!=0)

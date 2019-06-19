@@ -1,9 +1,11 @@
+int foo() {
+   a += 6;
+   return 2;
+}
+
 void main(){
-	int a = 1;
-	while (a == 6){
-		print(a);
-		a++;
-	}
-	print(123);
-	return;
+   int a;
+   a = foo1(2);
+   print(a);
+   return;
 }
