@@ -1,11 +1,9 @@
 void main(){
-	float a = 2.3;
-	float b = 8.7;
-	if(a>=b)
-	{
-		print(111);
+	int a = 1;
+	while (a == 6){
+		print(a);
+		a++;
 	}
-	bool c=true;
-	print(c);
+	print(123);
 	return;
 }

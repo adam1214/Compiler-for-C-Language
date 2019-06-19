@@ -149,8 +149,16 @@ primary_expression
 					sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 				else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
 					sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				break;
 
 			}
@@ -166,8 +174,16 @@ primary_expression
 						sprintf(b,"\tgetstatic compiler_hw3/%s F\n",$$.id_name);
 					else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
 						sprintf(b,"\tgetstatic compiler_hw3/%s Z\n\ti2f\n",$$.id_name);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 
@@ -183,8 +199,16 @@ primary_expression
 					sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 				else if(lookup_symbol_type(tmp,$$.id_name)==2) //bool
 					sprintf(b,"\tiload %d\n\ti2f\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				break;
 			}
 		}
@@ -203,8 +227,16 @@ primary_expression
 				sprintf(b,"\tldc %f\n",a);
 			else
 				sprintf(b,"\tldc %d\n",$$.i_val);
-			strcat(fun_content,b);
-			strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 		}
     | F_CONST 
 		{
@@ -213,25 +245,55 @@ primary_expression
 			integer_or_not=0;
 
 			sprintf(b,"\tldc %f\n",$$.f_val);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	| '"' STRING '"' 
 		{
 			arg_type=4;
 			$$=yylval.val;
 			sprintf(b,"\tldc \"%s\"\n",$$.string);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	| '('expression ')'
 	| TRUE
 		{
-			strcat(fun_content,"\tldc 1\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tldc 1\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tldc 1\n");
+			}
 		}
 	| FALSE
 		{
-			strcat(fun_content,"\tldc 0\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tldc 0\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tldc 0\n");
+			}
 		}
 	;
 
@@ -396,8 +458,16 @@ postfix_expression
 		else if(lookup_symbol_type(t,$$.id_name)==3)
 			sprintf(b,"\tinvokestatic compiler_hw3/%s(%s)V\n",$$.id_name,attr);
 
-		strcat(fun_content,b);
-		strcpy(b,"");
+		if(label_lock!=0)
+		{
+			strcat(label_content,b);
+			strcpy(b,"");
+		}
+		else
+		{
+			strcat(fun_content,b);
+			strcpy(b,"");
+		}
 
 		if(strcmp(attr,"")==0)
 		{
@@ -446,8 +516,16 @@ postfix_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 				tmp=tmp->pre;
@@ -469,8 +547,16 @@ postfix_expression
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
 						}
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
@@ -482,23 +568,54 @@ postfix_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1.000000\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tldc 1.000000\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tldc 1.000000\n");
+			}
 			if(type==0) //int
 			{
 				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			else //float
 			{
 				sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			integer_or_not=1;
 		}
@@ -523,8 +640,16 @@ postfix_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 				tmp=tmp->pre;
@@ -546,8 +671,16 @@ postfix_expression
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
 						}
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					if(lookup_symbol_type(tmp,v1->id_name)==0) //int
@@ -559,23 +692,54 @@ postfix_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1.000000\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tldc 1.000000\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tldc 1.000000\n");
+			}
 			if(type==0) //int 
 			{
 				sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			else //float
 			{
 				sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			integer_or_not=1;
 		}
@@ -588,22 +752,46 @@ argument_expression_list
 			if(arg_type==0) //int
 			{
 				//sprintf(b,"\tldc %d\n",v1->i_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("int",strlen("int"));
 			}
 			else if(arg_type==1) //float
 			{
 				//sprintf(b,"\tldc %f\n",v1->f_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("float",strlen("float"));
 			}
 			else if(arg_type==2) //bool
 			{
 				//sprintf(b,"\tldc %d\n",v1->i_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("bool",strlen("bool"));
 			}
 			else if(arg_type==3) //var.
@@ -632,7 +820,16 @@ argument_expression_list
 							integer_or_not=0;
 							Push_arg("bool_var",strlen("bool_var"));
 						}
-						strcat(fun_content,b);
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					tmp=tmp->pre;
@@ -656,7 +853,16 @@ argument_expression_list
 							integer_or_not=0;
 							Push_arg("bool_var",strlen("bool_var"));
 						}
-						strcat(fun_content,b);
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 				}
@@ -664,7 +870,16 @@ argument_expression_list
 			else if(arg_type==4) //string
 			{
 				//sprintf(b,"\tldc \"%s\"\n",v1->string);
-				strcat(fun_content,b);
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("string",strlen("string"));
 			}
 			arg_type=-1;
@@ -675,22 +890,46 @@ argument_expression_list
 			if(arg_type==0) //int
 			{
 				//sprintf(b,"\tldc %d\n",v1->i_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("int",strlen("int"));
 			}
 			else if(arg_type==1) //float
 			{
 				//sprintf(b,"\tldc %f\n",v1->f_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("float",strlen("float"));
 			}
 			else if(arg_type==2) //bool
 			{
 				//sprintf(b,"\tldc %d\n",v1->i_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("bool",strlen("bool"));
 			}
 			else if(arg_type==3) //var.
@@ -719,8 +958,16 @@ argument_expression_list
 							integer_or_not=0;
 							Push_arg("bool_var",strlen("bool_var"));
 						}
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					tmp=tmp->pre;
@@ -744,8 +991,16 @@ argument_expression_list
 							integer_or_not=0;
 							Push_arg("bool_var",strlen("bool_var"));
 						}
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 				}
@@ -753,7 +1008,16 @@ argument_expression_list
 			else if(arg_type==4) //string
 			{
 				//sprintf(b,"\tldc \"%s\"\n",v1->string);
-				strcat(fun_content,b);
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 				Push_arg("string",strlen("string"));
 			}
 			arg_type=-1;
@@ -783,8 +1047,16 @@ unary_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 				tmp=tmp->pre;
@@ -806,8 +1078,16 @@ unary_expression
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
 						}
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
@@ -819,23 +1099,54 @@ unary_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1.000000\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tldc 1.000000\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tldc 1.000000\n");
+			}
 			if(type==0) //int
 			{
 				sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			else //float
 			{
 				sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			integer_or_not=1;
 		}
@@ -860,8 +1171,16 @@ unary_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 				tmp=tmp->pre;
@@ -883,8 +1202,16 @@ unary_expression
 						{
 							//sprintf(b,"\tgetstatic compiler_hw3/%s Z\n",$$.id_name);
 						}
-						strcat(fun_content,b);
-						strcpy(b,"");
+						if(label_lock!=0)
+						{
+							strcat(label_content,b);
+							strcpy(b,"");
+						}
+						else
+						{
+							strcat(fun_content,b);
+							strcpy(b,"");
+						}
 						break;
 					}
 					if(lookup_symbol_type(tmp,v2->id_name)==0) //int
@@ -896,23 +1223,54 @@ unary_expression
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 			}
-			strcat(fun_content,"\tldc 1.000000\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tldc 1.000000\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tldc 1.000000\n");
+			}
 			if(type==0) //int 
 			{
 				sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			else //float
 			{
 				sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
-				strcat(fun_content,b);
-				strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,b);
+					strcpy(b,"");
+				}
+				else
+				{
+					strcat(fun_content,b);
+					strcpy(b,"");
+				}
 			}
 			integer_or_not=1;
 		}
@@ -937,7 +1295,14 @@ multiplicative_expression
 	: cast_expression {$$=$1;}
 	| multiplicative_expression '*' cast_expression
 		{
-			strcat(fun_content,"\tfmul\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tfmul\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tfmul\n");
+			}			
 		}
 	| multiplicative_expression '/' cast_expression
 		{
@@ -954,7 +1319,14 @@ multiplicative_expression
 			}
 			//printf("VVVVVVV=%d\n",v3->i_val);
 			//printf("VVVVVVV=%f\n",v3->f_val);
-			strcat(fun_content,"\tfdiv\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tfdiv\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tfdiv\n");
+			}
 		}
 	| multiplicative_expression '%' cast_expression
 		{
@@ -969,7 +1341,14 @@ multiplicative_expression
 			//printf("VVVVVVV=%f\n",v1->f_val);
 			//printf("VVVVVVV=%d\n",v3->i_val);
 			//printf("VVVVVVV=%f\n",v3->f_val);
-			strcat(fun_content,"\tfrem\n");
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\tfrem\n");
+			}
+			else
+			{
+				strcat(fun_content,"\tfrem\n");
+			}
 		}
 	;
 
@@ -981,16 +1360,30 @@ additive_expression
 			if(integer_or_not==0)
 			{
 				//sprintf(b,"\tldc %f\n",v3->f_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
-				strcat(fun_content,"\tfadd\n");
+				//strcat(fun_content,b);
+				//strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,"\tfadd\n");
+				}
+				else
+				{
+					strcat(fun_content,"\tfadd\n");
+				}
 			}
 			else if(integer_or_not==1)
 			{
 				//sprintf(b,"\tldc %d\n",v3->i_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
-				strcat(fun_content,"\tfadd\n");
+				//strcat(fun_content,b);
+				//strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,"\tfadd\n");
+				}
+				else
+				{
+					strcat(fun_content,"\tfadd\n");
+				}
 			}
 			integer_or_not=1;
 		}
@@ -1000,16 +1393,30 @@ additive_expression
 			if(integer_or_not==0)
 			{
 				//sprintf(b,"\tldc %f\n",v3->f_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
-				strcat(fun_content,"\tfsub\n");
+				//strcat(fun_content,b);
+				//strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,"\tfsub\n");
+				}
+				else
+				{
+					strcat(fun_content,"\tfsub\n");
+				}
 			}
 			else if(integer_or_not==1)
 			{
 				//sprintf(b,"\tldc %d\n",v3->i_val);
-				strcat(fun_content,b);
-				strcpy(b,"");
-				strcat(fun_content,"\tfsub\n");
+				//strcat(fun_content,b);
+				//strcpy(b,"");
+				if(label_lock!=0)
+				{
+					strcat(label_content,"\tfsub\n");
+				}
+				else
+				{
+					strcat(fun_content,"\tfsub\n");
+				}
 			}
 			integer_or_not=1;
 		}
@@ -1031,8 +1438,16 @@ relational_expression
 				//{
 					//sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
 					sprintf(b,"\tfsub\n\tf2i\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1050,10 +1465,18 @@ relational_expression
 				//{
 					//sprintf(b,"\tldc %d\n\tisub\n\tiflt LABEL_TRUE\n\tgoto LABEL_FALSE\nLABEL_TRUE:\n",v3->i_val);
 					sprintf(b,"\tfsub\n\tf2i\n\tiflt LABEL_TRUE\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					label_lock=1;
-					Push("\tgoto LABEL_FALSE\nLABEL_TRUE:\n",strlen("\tgoto LABEL_FALSE\nLABEL_TRUE:\n"));
+					Push("\tgoto EXIT_0\nLABEL_TRUE:\n",strlen("\tgoto EXIT_0\nLABEL_TRUE:\n"));
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1079,8 +1502,16 @@ relational_expression
 				//{
 					//sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
 					sprintf(b,"\tfsub\n\tf2i\n\tifgt LABEL_GT\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					label_lock=1;
 					Push("\tgoto EXIT_0\nLABEL_GT:\n",strlen("\tgoto EXIT_0\nLABEL_GT:\n"));
 				//}
@@ -1102,8 +1533,16 @@ relational_expression
 				//{
 					//sprintf(b,"\tldc %d\n\tisub\n\tifgt LABEL_GT\n",v3->i_val);
 					sprintf(b,"\tfsub\n\tf2i\n\tifgt LABEL_GT\n\tgoto EXIT_0\nLABEL_GT:\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1126,8 +1565,16 @@ relational_expression
 				//if(integer_or_not==1)
 				//{
 					sprintf(b,"\tfsub\n\tf2i\n\tifle LABEL_LE\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					label_lock=1;
 					Push("\tgoto EXIT_0\nLABEL_LE:\n",strlen("\tgoto EXIT_0\nLABEL_LE:\n"));
 				//}
@@ -1147,8 +1594,16 @@ relational_expression
 				//if(integer_or_not==1)
 				//{
 					sprintf(b,"\tfsub\n\tf2i\n\tifle LABEL_LE\n\tgoto EXIT_0\nLABEL_LE:\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1170,8 +1625,16 @@ relational_expression
 				//if(integer_or_not==1)
 				//{
 					sprintf(b,"\tfsub\n\tf2i\n\tifge LABEL_GE\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					label_lock=1;
 					Push("\tgoto EXIT_0\nLABEL_GE:\n",strlen("\tgoto EXIT_0\nLABEL_GE:\n"));
 				//}
@@ -1191,8 +1654,16 @@ relational_expression
 				//if(integer_or_not==1)
 				//{
 					sprintf(b,"\tfsub\n\tf2i\n\tifge LABEL_GE\n\tgoto EXIT_0\nLABEL_GE:\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1219,8 +1690,16 @@ equality_expression
 				//{
 					//sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
 					sprintf(b,"\tfsub\n\tf2i\n\tifeq LABEL_EQ\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					label_lock=1;
 					Push("\tgoto EXIT_0\nLABEL_EQ:\n",strlen("\tgoto EXIT_0\nLABEL_EQ:\n"));
 				//}
@@ -1242,8 +1721,16 @@ equality_expression
 				//{
 					//sprintf(b,"\tldc %d\n\tisub\n\tifeq LABEL_EQ\n",v3->i_val);
 					sprintf(b,"\tfsub\n\tf2i\n\tifeq LABEL_EQ\n\tgoto EXIT_0\nLABEL_EQ:\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1266,8 +1753,16 @@ equality_expression
 				//if(integer_or_not==1)
 				//{
 					sprintf(b,"\tfsub\n\tf2i\n\tifne LABEL_NE\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					label_lock=1;
 					Push("\tgoto EXIT_0\nLABEL_NE:\n",strlen("\tgoto EXIT_0\nLABEL_NE:\n"));
 				//}
@@ -1287,8 +1782,16 @@ equality_expression
 				//if(integer_or_not==1)
 				//{
 					sprintf(b,"\tfsub\n\tf2i\n\tifne LABEL_NE\n\tgoto EXIT_0\nLABEL_NE:\n");
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				//}
 				/*
 				else if(integer_or_not==0)
@@ -1365,15 +1868,31 @@ assignment_expression
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tf2i\n\tistore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 		else //float a; a=2;
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfstore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	}
 	| unary_expression ADDASGN assignment_expression
@@ -1406,15 +1925,31 @@ assignment_expression
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfadd\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 		else //float a; a+=2;
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfadd\n\tfstore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	}
 	| unary_expression SUBASGN assignment_expression
@@ -1447,15 +1982,31 @@ assignment_expression
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfsub\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 		else //float a; a-=2;
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfsub\n\tfstore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	}
 	| unary_expression MULASGN assignment_expression
@@ -1488,15 +2039,31 @@ assignment_expression
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfmul\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 		else //float a; a*=2;
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfmul\n\tfstore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	}
 	| unary_expression DIVASGN assignment_expression
@@ -1539,15 +2106,31 @@ assignment_expression
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfdiv\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 		else //float a; a/=2;
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfdiv\n\tfstore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 	}
 	| unary_expression MODASGN assignment_expression
@@ -1585,8 +2168,16 @@ assignment_expression
 		{
 			//sprintf(b,"\tiload %d\n\tldc %d\n\tiadd\n\tistore %d\n", reg_num,v3->i_val,reg_num);
 			sprintf(b,"\tfrem\n\tf2i\n\tistore %d\n",symbol_exist_or_not);
-			strcat(fun_content,b);
-			strcpy(b,"");
+			if(label_lock!=0)
+			{
+				strcat(label_content,b);
+				strcpy(b,"");
+			}
+			else
+			{
+				strcat(fun_content,b);
+				strcpy(b,"");
+			}
 		}
 		else //float a; a%=2;
 		{
@@ -1755,14 +2346,30 @@ declaration
 				if(v1->type==I_T)
 				{
 					sprintf(b,"\tldc 0\n\tistore %d\n",reg_num);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				}
 				else if(v1->type==F_T)
 				{
 					sprintf(b,"\tldc 0.0\n\tfstore %d\n",reg_num);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				}
 			}
 		}
@@ -1809,26 +2416,58 @@ declaration
 						sprintf(b,"\tf2i\n\tistore %d\n",reg_num);
 						integer_or_not=1;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				}
 				else if(v1->type==F_T)
 				{
 					sprintf(b,"\tfstore %d\n",reg_num);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				}
 				else if(v1->type==S_T)
 				{
 					sprintf(b,"\tastore %d\n",reg_num);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				}
 				else if(v1->type==B_T)
 				{
 					sprintf(b,"\tistore %d\n",reg_num);
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 				}
 			}
 		}
@@ -1974,7 +2613,7 @@ expression_statement
 	;
 
 selection_statement
-	: IF {label_lock=1;} '(' expression ')' {if(label_lock!=0) {strcat(label_content,Pop());}} statement else_or_not 
+	: IF '(' expression ')' {label_lock=1; if(label_lock!=0) {strcat(label_content,Pop());}} statement else_or_not 
 		{
 			if(strcmp(label_content,"")==0) 
 			{
@@ -2015,7 +2654,17 @@ iteration_statement
 jump_statement
 	: CONT ';'
 	| BREAK ';'
-	| RET ';' {strcat(fun_content,"\treturn\n");}
+	| RET ';'
+		{
+			if(label_lock!=0)
+			{
+				strcat(label_content,"\treturn\n");
+			}
+			else
+			{
+				strcat(fun_content,"\treturn\n");
+			}
+		}
 	| RET expression ';'
 		{
 			Value *v2=&$2; //a
@@ -2035,8 +2684,16 @@ jump_statement
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 				tmp=tmp->pre;
@@ -2052,18 +2709,40 @@ jump_statement
 						//sprintf(b,"\tfload %d\n",symbol_exist_or_not);
 						integer_or_not=0;
 					}
-					strcat(fun_content,b);
-					strcpy(b,"");
+					if(label_lock!=0)
+					{
+						strcat(label_content,b);
+						strcpy(b,"");
+					}
+					else
+					{
+						strcat(fun_content,b);
+						strcpy(b,"");
+					}
 					break;
 				}
 			}
 			if(integer_or_not==1)
 			{
+				if(label_lock!=0)
+				{
+					strcat(label_content,"\tf2i\n\tireturn\n");
+				}
+				else
+				{
 					strcat(fun_content,"\tf2i\n\tireturn\n");
+				}
 			}
 			else if(integer_or_not==0)
 			{
-				strcat(fun_content,"\tfreturn\n");
+				if(label_lock!=0)
+				{
+					strcat(label_content,"\tfreturn\n");
+				}
+				else
+				{
+					strcat(fun_content,"\tfreturn\n");
+				}
 				integer_or_not=1;
 			}
 		}
