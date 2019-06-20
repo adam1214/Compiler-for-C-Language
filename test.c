@@ -1,11 +1,9 @@
-int foo() {
-   a += 6;
-   return 2;
-}
+int a = 6;
+int b;
+void main() {
+    int d = 5;
+    d = a + b + 6;
+    print(d);
 
-void main(){
-   int a;
-   a = foo1(2);
-   print(a);
-   return;
+    return;
 }
