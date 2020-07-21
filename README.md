@@ -1,4 +1,4 @@
-# Compiler_F64051114_HW3
+# µC Compiler
 * Usage
   1.  ./myparser test.c
   2.  執行完上述產生出 .j檔 (java_assembly_code.j)
